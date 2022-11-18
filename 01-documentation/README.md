@@ -48,3 +48,4 @@ Aplikacija treba da omogući menadžerima restorana da se registruju i da dodaju
 - Promena trajanja rezervacije
 - Listanje svih slobodnih stolova
 - Pravljenje rezervacije
+
