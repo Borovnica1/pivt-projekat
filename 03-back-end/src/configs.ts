@@ -1,4 +1,4 @@
-import { IConfig } from "../common/IConfig.interface";
+import { IConfig } from "./common/IConfig.interface";
 
 const DevConfig: IConfig = {
   server: {
@@ -18,6 +18,16 @@ const DevConfig: IConfig = {
     format:
       ":date[iso]\t:remote-addr\t:method\t:url\t:status\t:res[content-length] bytes\t:response-time ms",
     filename: "access.log",
+  },
+  database: {
+    host: "localhost",
+    port: 3306,
+    user: "aplikacija",
+    password: "aplikacija",
+    database: "pivt_app",
+    charset: "utf8",
+    timezone: "+01:00",
+    supportBigNumbers: true,
   },
 };
 

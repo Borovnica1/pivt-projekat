@@ -1,43 +1,62 @@
 import * as express from "express";
 import * as cors from "cors";
-import { DevConfig } from "./config/configs";
+import { DevConfig } from "./configs";
 import { IConfig } from "./common/IConfig.interface";
 import * as fs from "fs";
 import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
+import IApplicationResources from "./common/IApplicationResources.interface";
+import * as mysql2 from "mysql2";
 import morgan = require("morgan");
 
-const config: IConfig = DevConfig;
+async function main() {
+  const config: IConfig = DevConfig;
 
-fs.mkdirSync("./logs", {
-  mode: 0o755,
-  recursive: true,
-});
+  fs.mkdirSync("./logs", {
+    mode: 0o755,
+    recursive: true,
+  });
 
-const application: express.Application = express();
+  const applicationResources: IApplicationResources = {
+    databaseConnection: await mysql2.createConnection({
+      host: config.database.host,
+      port: config.database.port,
+      user: config.database.user,
+      database: config.database.database,
+      password: config.database.password,
+      charset: config.database.charset,
+      timezone: config.database.timezone,
+      supportBigNumbers: config.database.supportBigNumbers,
+    }),
+  };
 
-application.use(
-  morgan(config.logging.format, {
-    stream: fs.createWriteStream(
-      config.logging.path + "/" + config.logging.filename,
-      { flags: "a" }
-    ),
-  })
-);
+  const application: express.Application = express();
 
-application.use(cors());
-application.use(express.json());
+  application.use(
+    morgan(config.logging.format, {
+      stream: fs.createWriteStream(
+        config.logging.path + "/" + config.logging.filename,
+        { flags: "a" }
+      ),
+    })
+  );
 
-application.use(
-  config.server.static.route,
-  express.static(config.server.static.path, {
-    index: config.server.static.index,
-    dotfiles: config.server.static.dotfiles,
-    cacheControl: config.server.static.cacheControl,
-    etag: config.server.static.etag,
-    maxAge: config.server.static.maxAge,
-  })
-);
+  application.use(cors());
+  application.use(express.json());
 
-RestaurantRouter.setUpRoutes(application);
+  application.use(
+    config.server.static.route,
+    express.static(config.server.static.path, {
+      index: config.server.static.index,
+      dotfiles: config.server.static.dotfiles,
+      cacheControl: config.server.static.cacheControl,
+      etag: config.server.static.etag,
+      maxAge: config.server.static.maxAge,
+    })
+  );
 
-application.listen(config.server.port);
+  RestaurantRouter.setUpRoutes(application);
+
+  application.listen(config.server.port);
+}
+
+main();

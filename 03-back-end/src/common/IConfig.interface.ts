@@ -16,6 +16,16 @@ interface IConfig {
     format: string;
     filename: string;
   };
+  database: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database: string;
+    charset: "utf8" | "utf8mb4" | "ascii";
+    timezone: string;
+    supportBigNumbers: boolean;
+  };
 }
 
 export { IConfig };
