@@ -11,6 +11,11 @@ interface IConfig {
       path: string;
     };
   };
+  logging: {
+    path: string;
+    format: string;
+    filename: string;
+  };
 }
 
 export { IConfig };
