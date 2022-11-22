@@ -7,6 +7,7 @@ import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
 import IApplicationResources from "./common/IApplicationResources.interface";
 import * as mysql2 from "mysql2/promise";
 import morgan = require("morgan");
+import LocationService from "./components/location/LocationService.service";
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -59,6 +60,19 @@ async function main() {
   }
 
   application.listen(config.server.port);
+  const locationServ = new LocationService(
+    applicationResources.databaseConnection
+  );
+
+  application.get("/locations", (req, res) => {
+    locationServ.getAll().then((result) => {
+      res.send(result);
+    });
+  });
 }
+
+process.on("uncaughtException", (error) => {
+  console.error("ERROR", error);
+});
 
 main();
