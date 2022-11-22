@@ -9,7 +9,15 @@ class RestaurantController {
   }
 
   async getAll(req: Request, res: Response) {
-    res.send(await this.RestaurantService.getAll());
+    res.send(
+      this.RestaurantService.getAll()
+        .then((result) => {
+          res.send(result);
+        })
+        .catch((error) => {
+          res.status(500).send(error?.message);
+        })
+    );
   }
 
   async getById(req: Request, res: Response) {

@@ -5,8 +5,10 @@ import { IConfig } from "./common/IConfig.interface";
 import * as fs from "fs";
 import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
 import IApplicationResources from "./common/IApplicationResources.interface";
-import * as mysql2 from "mysql2";
+import * as mysql2 from "mysql2/promise";
 import morgan = require("morgan");
+
+const router = new RestaurantRouter();
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -54,7 +56,7 @@ async function main() {
     })
   );
 
-  RestaurantRouter.setUpRoutes(application);
+  router.setUpRoutes(application, applicationResources);
 
   application.listen(config.server.port);
 }
