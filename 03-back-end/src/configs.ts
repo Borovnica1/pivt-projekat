@@ -1,4 +1,5 @@
 import { IConfig } from "./common/IConfig.interface";
+import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
 
 const DevConfig: IConfig = {
   server: {
@@ -29,6 +30,7 @@ const DevConfig: IConfig = {
     timezone: "+01:00",
     supportBigNumbers: true,
   },
+  routers: [new RestaurantRouter()],
 };
 
 export { DevConfig };
