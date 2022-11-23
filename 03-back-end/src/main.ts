@@ -8,6 +8,8 @@ import IApplicationResources from "./common/IApplicationResources.interface";
 import * as mysql2 from "mysql2/promise";
 import morgan = require("morgan");
 import LocationService from "./components/location/LocationService.service";
+import { AddLocationValidator } from "./components/location/dto/IAddLocation.dto";
+import IAddLocation from "./components/location/dto/IAddLocation.dto";
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -72,9 +74,14 @@ async function main() {
   });
 
   application.post("/locations", async (req, res) => {
-    console.log("reqqq", req.body);
+    const data: IAddLocation = req.body;
+    console.log("reqqq body", req.body);
+
+    if (!AddLocationValidator(data))
+      return res.status(400).send(AddLocationValidator.errors);
+
     locationServ
-      .add(req.body)
+      .add(data)
       .then((result) => {
         res.send(result);
       })
