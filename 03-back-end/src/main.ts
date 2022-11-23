@@ -60,6 +60,7 @@ async function main() {
   }
 
   application.listen(config.server.port);
+
   const locationServ = new LocationService(
     applicationResources.databaseConnection
   );
@@ -68,6 +69,18 @@ async function main() {
     locationServ.getAll().then((result) => {
       res.send(result);
     });
+  });
+
+  application.post("/locations", async (req, res) => {
+    console.log("reqqq", req.body);
+    locationServ
+      .add(req.body)
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        res.status(400).send(error?.message);
+      });
   });
 }
 
