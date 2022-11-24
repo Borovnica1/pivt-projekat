@@ -3,23 +3,25 @@ import LocationModel from "./LocationModel.interface";
 import RestaurantService from "../restaurant/RestaurantService.service";
 import RestaurantModel from "../restaurant/RestaurantModel.model";
 import IAddLocation from "./dto/IAddLocation.dto";
+import BaseService from "../../common/BaseService";
 
 interface ILocationAdapterOptions {
   loadRestaurants: boolean;
 }
 
-const DefaultLocationAdapterOptions: ILocationAdapterOptions = {
+export const DefaultLocationAdapterOptions: ILocationAdapterOptions = {
   loadRestaurants: true,
 };
 
-class LocationService {
-  private db: mysql2.Connection;
-
-  constructor(database: mysql2.Connection) {
-    this.db = database;
+class LocationService extends BaseService<
+  LocationModel,
+  ILocationAdapterOptions
+> {
+  tableName(): string {
+    return "location";
   }
 
-  private async adaptToModel(
+  protected async adaptToModel(
     data: any,
     options: ILocationAdapterOptions = DefaultLocationAdapterOptions
   ): Promise<LocationModel> {
@@ -36,22 +38,6 @@ class LocationService {
       location.restaurants = await restaurantsService.getAll();
     }
     return location;
-  }
-
-  public async getAll(): Promise<LocationModel[]> {
-    return new Promise<LocationModel[]>((resolve, reject) => {
-      const sql = "SELECT * FROM `location` ORDER BY `location_name`";
-
-      this.db.execute(sql).then(async ([rows]) => {
-        const locations: LocationModel[] = [];
-
-        for (const row of rows as mysql2.RowDataPacket[]) {
-          locations.push(await this.adaptToModel(row));
-        }
-
-        resolve(locations);
-      });
-    });
   }
 
   public async getById(locationId: number): Promise<LocationModel | null> {
@@ -104,6 +90,7 @@ class LocationService {
         });
     });
   }
+
 }
 
 export default LocationService;

@@ -7,9 +7,12 @@ import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
 import IApplicationResources from "./common/IApplicationResources.interface";
 import * as mysql2 from "mysql2/promise";
 import morgan = require("morgan");
-import LocationService from "./components/location/LocationService.service";
+import LocationService, {
+  DefaultLocationAdapterOptions,
+} from "./components/location/LocationService.service";
 import { AddLocationValidator } from "./components/location/dto/IAddLocation.dto";
 import IAddLocation from "./components/location/dto/IAddLocation.dto";
+import RestaurantService from "./components/restaurant/RestaurantService.service";
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -68,7 +71,17 @@ async function main() {
   );
 
   application.get("/locations", (req, res) => {
-    locationServ.getAll().then((result) => {
+    locationServ.getAll(DefaultLocationAdapterOptions).then((result) => {
+      res.send(result);
+    });
+  });
+
+  application.get("/locations/:lId/restaurants", (req, res) => {
+    const restServ = new RestaurantService(
+      applicationResources.databaseConnection
+    );
+    const locationId = +req.params.lId;
+    restServ.getAllByLocationId(locationId, {}).then(result => {
       res.send(result);
     });
   });

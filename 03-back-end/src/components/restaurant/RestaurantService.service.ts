@@ -1,14 +1,18 @@
 import RestaurantModel from "./RestaurantModel.model";
 import * as mysql2 from "mysql2/promise";
+import IAdapterOptions from "../../common/IAdapterOptions.interface";
+import BaseService from "../../common/BaseService";
 
-class RestaurantService {
-  private db: mysql2.Connection;
-
-  constructor(databaseConnection: mysql2.Connection) {
-    this.db = databaseConnection;
+class IRestaurantOptions implements IAdapterOptions {}
+class RestaurantService extends BaseService<
+  RestaurantModel,
+  IRestaurantOptions
+> {
+  tableName(): string {
+    return "restaurant";
   }
 
-  private async adaptToModel(data: any): Promise<RestaurantModel> {
+  protected async adaptToModel(data: any): Promise<RestaurantModel> {
     const restaurant: RestaurantModel = new RestaurantModel();
 
     restaurant.restaurantId = +data?.restaurant_id;
@@ -49,7 +53,7 @@ class RestaurantService {
     return new Promise<RestaurantModel>((resolve, reject) => {
       const sql: string =
         "SELECT * from `restaurant` WHERE `restaurant_id` = ?;";
-        
+
       this.db
         .execute(sql, [restaurantId])
         .then(async ([rows]) => {
@@ -67,6 +71,13 @@ class RestaurantService {
           reject(error);
         });
     });
+  }
+
+  public async getAllByLocationId(
+    locationId: number,
+    options: IRestaurantOptions
+  ): Promise<RestaurantModel[]> {
+    return this.getAllByFieldNameAndValue("location_id", locationId, options);
   }
 }
 
