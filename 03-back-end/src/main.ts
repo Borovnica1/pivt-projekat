@@ -13,6 +13,9 @@ import LocationService, {
 import { AddLocationValidator } from "./components/location/dto/IAddLocation.dto";
 import IAddLocation from "./components/location/dto/IAddLocation.dto";
 import RestaurantService from "./components/restaurant/RestaurantService.service";
+import IAddRestaurant, {
+  AddRestaurantValidator,
+} from "./components/restaurant/dto/IAddRestaurant.dto";
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -81,7 +84,7 @@ async function main() {
       applicationResources.databaseConnection
     );
     const locationId = +req.params.lId;
-    restServ.getAllByLocationId(locationId, {}).then(result => {
+    restServ.getAllByLocationId(locationId, {}).then((result) => {
       res.send(result);
     });
   });
@@ -100,6 +103,28 @@ async function main() {
       })
       .catch((error) => {
         res.status(400).send(error?.message);
+      });
+  });
+
+  application.post("/location/:lId/restaurant", (req, res) => {
+    const restServ = new RestaurantService(
+      applicationResources.databaseConnection
+    );
+    const locationId = +req.params?.lId;
+    const data: IAddRestaurant = req.body;
+
+    if (!AddRestaurantValidator(data)) {
+      return res.status(404).send(AddRestaurantValidator.errors);
+    }
+
+    restServ
+      .add({ restaurantName: data.restaurantName, locationId: locationId })
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        console.log("eerr", error);
+        res.send(error.message);
       });
   });
 }

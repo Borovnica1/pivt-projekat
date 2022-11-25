@@ -21,7 +21,7 @@ class RestaurantController {
   async getById(req: Request, res: Response) {
     const restaurantId: number = Number(req.params?.rId);
 
-    const restaurant = await this.RestaurantService.getById(restaurantId);
+    const restaurant = await this.RestaurantService.getById(restaurantId, {});
 
     if (restaurant === null) return res.status(404).send("nema podaci");
 

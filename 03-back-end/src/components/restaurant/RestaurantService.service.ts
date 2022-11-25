@@ -2,6 +2,7 @@ import RestaurantModel from "./RestaurantModel.model";
 import * as mysql2 from "mysql2/promise";
 import IAdapterOptions from "../../common/IAdapterOptions.interface";
 import BaseService from "../../common/BaseService";
+import { IAddRestaurantServiceDto } from "./dto/IAddRestaurant.dto";
 
 class IRestaurantOptions implements IAdapterOptions {}
 class RestaurantService extends BaseService<
@@ -48,7 +49,10 @@ class RestaurantService extends BaseService<
     return restaurants;
   }
 
-  public async getById(restaurantId: number): Promise<RestaurantModel | null> {
+  public async getById(
+    restaurantId: number,
+    options: IRestaurantOptions
+  ): Promise<RestaurantModel | null> {
     if (restaurantId === 9) return null;
     return new Promise<RestaurantModel>((resolve, reject) => {
       const sql: string =
@@ -78,6 +82,36 @@ class RestaurantService extends BaseService<
     options: IRestaurantOptions
   ): Promise<RestaurantModel[]> {
     return this.getAllByFieldNameAndValue("location_id", locationId, options);
+  }
+
+  public async add(data: IAddRestaurantServiceDto): Promise<RestaurantModel> {
+    return new Promise<RestaurantModel>((resolve, reject) => {
+      const sql: string = `INSERT restaurant SET name = ?, location_id = ?`;
+      
+
+      this.db
+        .execute(sql, [data.restaurantName, data.locationId])
+        .then(async (result) => {
+          const info: any = result;
+
+          const newRestaurantId = +info[0]?.insertId;
+
+          const newRestaurant: RestaurantModel | null = await this.getById(
+            newRestaurantId,
+            {}
+          );
+
+          if (newRestaurant === null)
+            return reject({
+              message: "DUpliacate restaurant name in this Location",
+            });
+
+          resolve(newRestaurant);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 }
 
