@@ -7,8 +7,8 @@ export default interface IAddRestaurant {
 }
 
 interface IAddRestaurantServiceDto {
-  restaurantName: string;
-  locationId: number;
+  name: string;
+  location_id: number;
 }
 
 const AddRestaurantValidator = ajv.compile({

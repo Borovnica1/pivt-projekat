@@ -85,33 +85,7 @@ class RestaurantService extends BaseService<
   }
 
   public async add(data: IAddRestaurantServiceDto): Promise<RestaurantModel> {
-    return new Promise<RestaurantModel>((resolve, reject) => {
-      const sql: string = `INSERT restaurant SET name = ?, location_id = ?`;
-      
-
-      this.db
-        .execute(sql, [data.restaurantName, data.locationId])
-        .then(async (result) => {
-          const info: any = result;
-
-          const newRestaurantId = +info[0]?.insertId;
-
-          const newRestaurant: RestaurantModel | null = await this.getById(
-            newRestaurantId,
-            {}
-          );
-
-          if (newRestaurant === null)
-            return reject({
-              message: "DUpliacate restaurant name in this Location",
-            });
-
-          resolve(newRestaurant);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+    return this.baseAdd(data, {});
   }
 }
 

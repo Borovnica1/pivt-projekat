@@ -65,32 +65,8 @@ class LocationService extends BaseService<
   }
 
   public async add(data: IAddLocation): Promise<LocationModel> {
-    return new Promise<LocationModel>((resolve, reject) => {
-      const sql: string = "INSERT `location` SET location_name = ?";
-      console.log("dataaa", data);
-      this.db
-        .execute(sql, [data.location_name])
-        .then(async (result) => {
-          const info: any = result;
-
-          const newLocationId = +info[0].insertId;
-
-          const newLocation: LocationModel | null = await this.getById(
-            newLocationId
-          );
-
-          if (newLocation === null) {
-            return reject({ message: "Duplicate location name!" });
-          }
-
-          resolve(newLocation);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+    return this.baseAdd(data, DefaultLocationAdapterOptions);
   }
-
 }
 
 export default LocationService;
