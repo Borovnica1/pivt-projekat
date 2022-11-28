@@ -3,6 +3,7 @@ import * as mysql2 from "mysql2/promise";
 import IAdapterOptions from "../../common/IAdapterOptions.interface";
 import BaseService from "../../common/BaseService";
 import { IAddRestaurantServiceDto } from "./dto/IAddRestaurant.dto";
+import IEditRestaurant from "./dto/IEditRestaurant.dto";
 
 class IRestaurantOptions implements IAdapterOptions {}
 class RestaurantService extends BaseService<
@@ -86,6 +87,14 @@ class RestaurantService extends BaseService<
 
   public async add(data: IAddRestaurantServiceDto): Promise<RestaurantModel> {
     return this.baseAdd(data, {});
+  }
+
+  public async editById(
+    restaurantId: number,
+    data: IEditRestaurant,
+    options: IRestaurantOptions
+  ): Promise<RestaurantModel> {
+    return this.baseEdit(restaurantId, data, options);
   }
 }
 

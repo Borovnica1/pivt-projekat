@@ -118,7 +118,7 @@ async function main() {
     }
 
     restServ
-      .add({ name: data.restaurantName, location_id: locationId })
+      .add({ name: data.name, location_id: locationId })
       .then((result) => {
         res.send(result);
       })

@@ -17,13 +17,16 @@ class RestaurantRouter implements IRouter {
     );
 
     application.get(
-      "/restaurant/:rId",
+      "/api/restaurant",
+      restaurantController.getAll.bind(restaurantController)
+    );
+    application.get(
+      "/api/restaurant/:rId",
       restaurantController.getById.bind(restaurantController)
     );
-
-    application.get(
-      "/restaurants",
-      restaurantController.getAll.bind(restaurantController)
+    application.put(
+      "/api/restaurant/:rId",
+      restaurantController.edit.bind(restaurantController)
     );
   }
 }

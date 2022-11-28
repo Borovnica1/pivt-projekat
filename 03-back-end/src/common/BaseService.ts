@@ -130,10 +130,54 @@ export default abstract class BaseService<
 
           if (newItem === null)
             return reject({
-              message: "Could not add new " + newItem + " into "+tableName,
+              message: "Could not add new " + newItem + " into " + tableName,
             });
 
           resolve(newItem);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  protected async baseEdit(
+    id: number,
+    data: IServiceData,
+    options: AdapterOptions
+  ): Promise<ReturnModel> {
+    const tableName = this.tableName();
+
+    return new Promise<ReturnModel>((resolve, reject) => {
+      const dataProperties = Object.getOwnPropertyNames(data);
+      const sqlPairs: string = dataProperties
+        .map((property) => "`" + property + "` = ?")
+        .join(", ");
+      const sqlValues = dataProperties.map((property) => data[property]);
+      sqlValues.push(id);
+      const sql: string = `UPDATE ${tableName} SET ${sqlPairs} WHERE ${tableName}_id = ?;`;
+
+      this.db
+        .execute(sql, sqlValues)
+        .then(async (result) => {
+          const info: any = result;
+
+          if (info[0]?.affectedRows === 0) {
+            return reject({
+              message:
+                "Could not change any items in the " + tableName + " table!",
+            });
+          }
+
+          const item: ReturnModel | null = await this.getById(id, options);
+
+          if (item === null)
+            return reject({
+              message:
+                "Could not find this item in the " + tableName + " table!",
+            });
+
+          resolve(item);
         })
         .catch((error) => {
           reject(error);

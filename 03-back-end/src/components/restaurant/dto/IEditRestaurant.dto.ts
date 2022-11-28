@@ -2,16 +2,16 @@ import Ajv from "ajv";
 
 const ajv = new Ajv();
 
-export default interface IAddRestaurant {
+export default interface IEditRestaurant {
   name: string;
 }
 
-interface IAddRestaurantServiceDto {
+interface IEditRestaurantServiceDto {
   name: string;
   location_id: number;
 }
 
-const AddRestaurantValidator = ajv.compile({
+const EditRestaurantValidator = ajv.compile({
   type: "object",
   properties: {
     name: {
@@ -24,4 +24,4 @@ const AddRestaurantValidator = ajv.compile({
   additionalProperties: false,
 });
 
-export { AddRestaurantValidator, IAddRestaurantServiceDto };
+export { EditRestaurantValidator, IEditRestaurantServiceDto };
