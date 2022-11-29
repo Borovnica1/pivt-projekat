@@ -6,14 +6,15 @@ import {
 import RestaurantService from "./RestaurantService.service";
 
 class RestaurantController {
-  private RestaurantService: RestaurantService;
+  private restaurantService: RestaurantService;
 
-  constructor(RestaurantService: RestaurantService) {
-    this.RestaurantService = RestaurantService;
+  constructor(restaurantService: RestaurantService) {
+    this.restaurantService = restaurantService;
   }
 
   async getAll(req: Request, res: Response) {
-    this.RestaurantService.getAll()
+    this.restaurantService
+      .getAll()
       .then((result) => {
         res.send(result);
       })
@@ -25,7 +26,7 @@ class RestaurantController {
   async getById(req: Request, res: Response) {
     const restaurantId: number = Number(req.params?.rId);
 
-    const restaurant = await this.RestaurantService.getById(restaurantId, {});
+    const restaurant = await this.restaurantService.getById(restaurantId, {});
 
     if (restaurant === null) return res.status(404).send("nema podaci");
 
@@ -40,7 +41,8 @@ class RestaurantController {
       return res.status(400).send(EditRestaurantValidator.errors);
     }
 
-    this.RestaurantService.getById(restaurantId, {})
+    this.restaurantService
+      .getById(restaurantId, {})
       .then((result) => {
         if (result === null) {
           throw {
@@ -50,7 +52,7 @@ class RestaurantController {
         }
       })
       .then(() => {
-        return this.RestaurantService.editById(
+        return this.restaurantService.editById(
           restaurantId,
           {
             name: data.name,
@@ -63,6 +65,34 @@ class RestaurantController {
       })
       .catch((error) => {
         res.status(error?.status ?? 500).send(error?.message);
+      });
+  }
+
+  async delete(req: Request, res: Response) {
+    const restaurantId: number = +req.params?.rId;
+
+    this.restaurantService
+      .getById(restaurantId, {})
+      .then((result) => {
+        if (result === null) {
+          return res.status(404).send("Restaurant not found!");
+        }
+
+        this.restaurantService
+          .deleteById(restaurantId)
+          .then((result) => {
+            res.send("This restaurant has been deleted!");
+          })
+          .catch((error) => {
+            res
+              .status(406)
+              .send(
+                "Could not deelte this restaurant due to an integrity constraint check!"
+              );
+          });
+      })
+      .catch((error) => {
+        res.status(500).send(error?.message);
       });
   }
 }

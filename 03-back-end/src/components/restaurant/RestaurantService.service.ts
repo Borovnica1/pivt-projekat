@@ -96,6 +96,10 @@ class RestaurantService extends BaseService<
   ): Promise<RestaurantModel> {
     return this.baseEdit(restaurantId, data, options);
   }
+
+  public async deleteById(id: number): Promise<true> {
+    return this.baseDeleteById(id);
+  }
 }
 
 export default RestaurantService;

@@ -28,6 +28,10 @@ class RestaurantRouter implements IRouter {
       "/api/restaurant/:rId",
       restaurantController.edit.bind(restaurantController)
     );
+    application.delete(
+      "/api/restaurant/:rId",
+      restaurantController.delete.bind(restaurantController)
+    );
   }
 }
 
