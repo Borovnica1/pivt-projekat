@@ -25,17 +25,23 @@ async function main() {
     recursive: true,
   });
 
+  const db = await mysql2.createConnection({
+    host: config.database.host,
+    port: config.database.port,
+    user: config.database.user,
+    database: config.database.database,
+    password: config.database.password,
+    charset: config.database.charset,
+    timezone: config.database.timezone,
+    supportBigNumbers: config.database.supportBigNumbers,
+  });
+
   const applicationResources: IApplicationResources = {
-    databaseConnection: await mysql2.createConnection({
-      host: config.database.host,
-      port: config.database.port,
-      user: config.database.user,
-      database: config.database.database,
-      password: config.database.password,
-      charset: config.database.charset,
-      timezone: config.database.timezone,
-      supportBigNumbers: config.database.supportBigNumbers,
-    }),
+    databaseConnection: db,
+    services: {
+      location: new LocationService(db),
+      restaurant: new RestaurantService(db),
+    },
   };
 
   const application: express.Application = express();

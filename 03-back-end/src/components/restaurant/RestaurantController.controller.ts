@@ -1,19 +1,13 @@
 import { Request, Response } from "express";
+import BaseController from "../../common/BaseController";
 import {
   EditRestaurantValidator,
   IEditRestaurantServiceDto,
 } from "./dto/IEditRestaurant.dto";
-import RestaurantService from "./RestaurantService.service";
 
-class RestaurantController {
-  private restaurantService: RestaurantService;
-
-  constructor(restaurantService: RestaurantService) {
-    this.restaurantService = restaurantService;
-  }
-
+class RestaurantController extends BaseController {
   async getAll(req: Request, res: Response) {
-    this.restaurantService
+    this.services.restaurant
       .getAll()
       .then((result) => {
         res.send(result);
@@ -26,7 +20,7 @@ class RestaurantController {
   async getById(req: Request, res: Response) {
     const restaurantId: number = Number(req.params?.rId);
 
-    const restaurant = await this.restaurantService.getById(restaurantId, {});
+    const restaurant = await this.services.restaurant.getById(restaurantId, {});
 
     if (restaurant === null) return res.status(404).send("nema podaci");
 
@@ -41,7 +35,7 @@ class RestaurantController {
       return res.status(400).send(EditRestaurantValidator.errors);
     }
 
-    this.restaurantService
+    this.services.restaurant
       .getById(restaurantId, {})
       .then((result) => {
         if (result === null) {
@@ -52,7 +46,7 @@ class RestaurantController {
         }
       })
       .then(() => {
-        return this.restaurantService.editById(
+        return this.services.restaurant.editById(
           restaurantId,
           {
             name: data.name,
@@ -71,14 +65,14 @@ class RestaurantController {
   async delete(req: Request, res: Response) {
     const restaurantId: number = +req.params?.rId;
 
-    this.restaurantService
+    this.services.restaurant
       .getById(restaurantId, {})
       .then((result) => {
         if (result === null) {
           return res.status(404).send("Restaurant not found!");
         }
 
-        this.restaurantService
+        this.services.restaurant
           .deleteById(restaurantId)
           .then((result) => {
             res.send("This restaurant has been deleted!");

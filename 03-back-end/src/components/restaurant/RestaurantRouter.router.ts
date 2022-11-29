@@ -13,7 +13,7 @@ class RestaurantRouter implements IRouter {
       resources.databaseConnection
     );
     const restaurantController: RestaurantController = new RestaurantController(
-      restaurantService
+      resources.services
     );
 
     application.get(
