@@ -67,6 +67,10 @@ class LocationService extends BaseService<
   public async add(data: IAddLocation): Promise<LocationModel> {
     return this.baseAdd(data, DefaultLocationAdapterOptions);
   }
+
+  public async edit(id, data: IAddLocation): Promise<LocationModel> {
+    return this.baseEdit(id, data, DefaultLocationAdapterOptions);
+  }
 }
 
 export default LocationService;

@@ -13,6 +13,7 @@ import LocationService, {
 import { AddLocationValidator } from "./components/location/dto/IAddLocation.dto";
 import IAddLocation from "./components/location/dto/IAddLocation.dto";
 import RestaurantService from "./components/restaurant/RestaurantService.service";
+import ManagerService from './components/manager/ManagerService.service';
 import IAddRestaurant, {
   AddRestaurantValidator,
 } from "./components/restaurant/dto/IAddRestaurant.dto";
@@ -41,6 +42,7 @@ async function main() {
     services: {
       location: new LocationService(db),
       restaurant: new RestaurantService(db),
+      manager: new ManagerService(db),
     },
   };
 
@@ -83,6 +85,17 @@ async function main() {
     locationServ.getAll(DefaultLocationAdapterOptions).then((result) => {
       res.send(result);
     });
+  });
+
+  application.put("/api/location/:lId", (req, res) => {
+    locationServ
+      .edit(req.params?.lId, req.body)
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        res.send(error.message);
+      });
   });
 
   application.get("/locations/:lId/restaurants", (req, res) => {

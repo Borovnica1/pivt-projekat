@@ -1,7 +1,6 @@
 import IModel from "./IModel.interface";
 import IAdapterOptions from "./IAdapterOptions.interface";
 import * as mysql2 from "mysql2/promise";
-import RestaurantModel from "../components/restaurant/RestaurantModel.model";
 import IServiceData from "./IServiceData.interface";
 
 export default abstract class BaseService<
@@ -150,6 +149,9 @@ export default abstract class BaseService<
 
     return new Promise<ReturnModel>((resolve, reject) => {
       const dataProperties = Object.getOwnPropertyNames(data);
+
+      if (dataProperties.length === 0) reject({message: 'There are no properties to edit!'})
+
       const sqlPairs: string = dataProperties
         .map((property) => "`" + property + "` = ?")
         .join(", ");
