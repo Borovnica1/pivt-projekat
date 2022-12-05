@@ -18,6 +18,8 @@ import WorkingHoursService from "./components/working-hours/Working-hoursService
 import IAddRestaurant, {
   AddRestaurantValidator,
 } from "./components/restaurant/dto/IAddRestaurant.dto";
+import PhotoService from "./components/photo/PhotoService.service";
+import fileUpload = require("express-fileupload");
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -45,6 +47,7 @@ async function main() {
       restaurant: new RestaurantService(db),
       manager: new ManagerService(db),
       workingHours: new WorkingHoursService(db),
+      photo: new PhotoService(db),
     },
   };
 
@@ -60,6 +63,22 @@ async function main() {
   );
 
   application.use(cors());
+  application.use(express.urlencoded({ extended: true }));
+  application.use(
+    fileUpload({
+      limits: {
+        files: config.fileUploads.maxFiles,
+        fileSize: config.fileUploads.maxFileSize,
+      },
+      abortOnLimit: true,
+
+      useTempFiles: true,
+      tempFileDir: config.fileUploads.temporaryFileDirecotry,
+      createParentPath: true,
+      safeFileNames: true,
+      preserveExtension: true,
+    })
+  );
   application.use(express.json());
 
   application.use(

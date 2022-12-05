@@ -2,3 +2,4 @@ node_modules/
 dist/
 logs/
 temp/
+03-back-end/static/uploads

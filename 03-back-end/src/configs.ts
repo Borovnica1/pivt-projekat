@@ -12,8 +12,8 @@ const DevConfig: IConfig = {
       cacheControl: true,
       etag: true,
       maxAge: 1000 * 60 * 60 * 24,
-      route: "./static",
-      path: "/assets",
+      path: "./static",
+      route: "/assets",
     },
   },
   logging: {
@@ -37,6 +37,24 @@ const DevConfig: IConfig = {
     new ManagerRouter(),
     new WorkingHoursRouter(),
   ],
+  fileUploads: {
+    maxFiles: 5,
+    maxFileSize: 5 * 1024 * 1024, // 5MB
+    temporaryFileDirecotry: "../temp/",
+    destinationDirectoryRoot: "uploads/",
+    photos: {
+      allowedTypes: ["png", "jpg"],
+      allowedExtensions: [".png", ".jpg"],
+      width: {
+        min: 320,
+        max: 1920,
+      },
+      height: {
+        min: 240,
+        max: 1080,
+      },
+    },
+  },
 };
 
 export { DevConfig };
