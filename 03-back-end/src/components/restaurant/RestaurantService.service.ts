@@ -54,7 +54,6 @@ class RestaurantService extends BaseService<
     restaurantId: number,
     options: IRestaurantOptions
   ): Promise<RestaurantModel | null> {
-    if (restaurantId === 9) return null;
     return new Promise<RestaurantModel>((resolve, reject) => {
       const sql: string =
         "SELECT * from `restaurant` WHERE `restaurant_id` = ?;";
