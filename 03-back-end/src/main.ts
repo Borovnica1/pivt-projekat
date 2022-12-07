@@ -43,13 +43,34 @@ async function main() {
   const applicationResources: IApplicationResources = {
     databaseConnection: db,
     services: {
-      location: new LocationService(db),
-      restaurant: new RestaurantService(db),
-      manager: new ManagerService(db),
-      workingHours: new WorkingHoursService(db),
-      photo: new PhotoService(db),
+      location: null,
+      restaurant: null,
+      manager: null,
+      workingHours: null,
+      photo: null,
     },
   };
+
+  applicationResources.services.location = new LocationService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.restaurant = new RestaurantService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.manager = new ManagerService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.workingHours = new WorkingHoursService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.photo = new PhotoService(
+    db,
+    applicationResources.services
+  );
 
   const application: express.Application = express();
 
@@ -99,7 +120,8 @@ async function main() {
   application.listen(config.server.port);
 
   const locationServ = new LocationService(
-    applicationResources.databaseConnection
+    applicationResources.databaseConnection,
+    applicationResources.services
   );
 
   application.get("/locations", (req, res) => {
@@ -121,12 +143,15 @@ async function main() {
 
   application.get("/locations/:lId/restaurants", (req, res) => {
     const restServ = new RestaurantService(
-      applicationResources.databaseConnection
+      applicationResources.databaseConnection,
+      applicationResources.services
     );
     const locationId = +req.params.lId;
-    restServ.getAllByLocationId(locationId, {}).then((result) => {
-      res.send(result);
-    });
+    restServ
+      .getAllByLocationId(locationId, { loadPhotos: true })
+      .then((result) => {
+        res.send(result);
+      });
   });
 
   application.post("/locations", async (req, res) => {
@@ -148,7 +173,8 @@ async function main() {
 
   application.post("/location/:lId/restaurant", (req, res) => {
     const restServ = new RestaurantService(
-      applicationResources.databaseConnection
+      applicationResources.databaseConnection,
+      applicationResources.services
     );
     const locationId = +req.params?.lId;
     const data: IAddRestaurant = req.body;

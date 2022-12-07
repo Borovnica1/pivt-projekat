@@ -5,10 +5,7 @@ import PhotoModel from "./PhotoModel.model";
 
 export interface IPhotoAdapterOptions extends IAdapterOptions {}
 
-export default class PhotoService extends BaseService<
-  PhotoModel,
-  IPhotoAdapterOptions
-> {
+export default class PhotoService extends BaseService<PhotoModel, IPhotoAdapterOptions> {
   tableName(): string {
     return "photo";
   }
@@ -33,5 +30,17 @@ export default class PhotoService extends BaseService<
     options: IPhotoAdapterOptions = {}
   ): Promise<PhotoModel> {
     return this.baseAdd(data, options);
+  }
+
+  public async getAllByRestaurantId(
+    restaurantId: number
+  ): Promise<PhotoModel[]> {
+    return this.getAllByFieldNameAndValue("restaurant_id", restaurantId, {});
+  }
+
+  public async deleteById(
+    photoId: number
+  ): Promise<true> {
+    return this.baseDeleteById(photoId);
   }
 }

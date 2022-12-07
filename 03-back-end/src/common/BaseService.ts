@@ -2,19 +2,26 @@ import IModel from "./IModel.interface";
 import IAdapterOptions from "./IAdapterOptions.interface";
 import * as mysql2 from "mysql2/promise";
 import IServiceData from "./IServiceData.interface";
+import { IServices } from "./IApplicationResources.interface";
 
 export default abstract class BaseService<
   ReturnModel extends IModel,
   AdapterOptions extends IAdapterOptions
 > {
   private database: mysql2.Connection;
+  private allServices: IServices;
 
-  constructor(databaseConnection: mysql2.Connection) {
+  constructor(databaseConnection: mysql2.Connection, services: IServices) {
     this.database = databaseConnection;
+    this.allServices = services;
   }
 
   protected get db(): mysql2.Connection {
     return this.database;
+  }
+
+  protected get services(): IServices {
+    return this.allServices;
   }
 
   abstract tableName(): string;
@@ -46,7 +53,7 @@ export default abstract class BaseService<
     });
   }
 
-  public getById(
+  public baseGetById(
     id: number,
     options: AdapterOptions
   ): Promise<ReturnModel | null> {
@@ -87,13 +94,13 @@ export default abstract class BaseService<
       this.database
         .execute(sql, [value])
         .then(async ([rows]) => {
-          const restaurants: ReturnModel[] = [];
+          const items: ReturnModel[] = [];
 
           for (const row of rows as mysql2.RowDataPacket[]) {
-            restaurants.push(await this.adaptToModel(row, options));
+            items.push(await this.adaptToModel(row, options));
           }
 
-          resolve(restaurants);
+          resolve(items);
         })
         .catch((error) => {
           reject(error);
@@ -122,7 +129,7 @@ export default abstract class BaseService<
 
           const newItemtId = +info[0]?.insertId;
 
-          const newItem: ReturnModel | null = await this.getById(
+          const newItem: ReturnModel | null = await this.baseGetById(
             newItemtId,
             options
           );
@@ -150,7 +157,8 @@ export default abstract class BaseService<
     return new Promise<ReturnModel>((resolve, reject) => {
       const dataProperties = Object.getOwnPropertyNames(data);
 
-      if (dataProperties.length === 0) reject({message: 'There are no properties to edit!'})
+      if (dataProperties.length === 0)
+        reject({ message: "There are no properties to edit!" });
 
       const sqlPairs: string = dataProperties
         .map((property) => "`" + property + "` = ?")
@@ -171,7 +179,7 @@ export default abstract class BaseService<
             });
           }
 
-          const item: ReturnModel | null = await this.getById(id, options);
+          const item: ReturnModel | null = await this.baseGetById(id, options);
 
           if (item === null)
             return reject({

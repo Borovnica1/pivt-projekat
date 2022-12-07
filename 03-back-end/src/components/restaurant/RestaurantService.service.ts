@@ -5,7 +5,9 @@ import BaseService from "../../common/BaseService";
 import { IAddRestaurantServiceDto } from "./dto/IAddRestaurant.dto";
 import IEditRestaurant from "./dto/IEditRestaurant.dto";
 
-class IRestaurantOptions implements IAdapterOptions {}
+class IRestaurantOptions implements IAdapterOptions {
+  loadPhotos: boolean;
+}
 class RestaurantService extends BaseService<
   RestaurantModel,
   IRestaurantOptions
@@ -14,11 +16,21 @@ class RestaurantService extends BaseService<
     return "restaurant";
   }
 
-  protected async adaptToModel(data: any): Promise<RestaurantModel> {
+  protected async adaptToModel(
+    data: any,
+    options: IRestaurantOptions
+  ): Promise<RestaurantModel> {
     const restaurant: RestaurantModel = new RestaurantModel();
 
     restaurant.restaurantId = +data?.restaurant_id;
     restaurant.name = data?.name;
+
+    if (options.loadPhotos) {
+      const restaurantPhotos = await this.services.photo.getAllByRestaurantId(
+        restaurant.restaurantId
+      );
+      restaurant.photos = restaurantPhotos;
+    }
 
     return restaurant;
   }
@@ -36,7 +48,9 @@ class RestaurantService extends BaseService<
           const restaurants: RestaurantModel[] = [];
 
           for (const row of rows as mysql2.RowDataPacket[]) {
-            restaurants.push(await this.adaptToModel(row));
+            restaurants.push(
+              await this.adaptToModel(row, { loadPhotos: true })
+            );
           }
 
           resolve(restaurants);
@@ -54,27 +68,7 @@ class RestaurantService extends BaseService<
     restaurantId: number,
     options: IRestaurantOptions
   ): Promise<RestaurantModel | null> {
-    return new Promise<RestaurantModel>((resolve, reject) => {
-      const sql: string =
-        "SELECT * from `restaurant` WHERE `restaurant_id` = ?;";
-
-      this.db
-        .execute(sql, [restaurantId])
-        .then(async ([rows]) => {
-          if (rows === undefined) {
-            return resolve(null);
-          }
-
-          if (Array.isArray(rows) && rows.length === 0) {
-            return resolve(null);
-          }
-
-          resolve(await this.adaptToModel(rows[0]));
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+    return this.baseGetById(restaurantId, options);
   }
 
   public async getAllByLocationId(
@@ -85,7 +79,7 @@ class RestaurantService extends BaseService<
   }
 
   public async add(data: IAddRestaurantServiceDto): Promise<RestaurantModel> {
-    return this.baseAdd(data, {});
+    return this.baseAdd(data, { loadPhotos: false });
   }
 
   public async editById(

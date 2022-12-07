@@ -31,11 +31,7 @@ class LocationService extends BaseService<
     location.locationName = data?.location_name;
 
     if (options.loadRestaurants) {
-      const restaurantsService: RestaurantService = new RestaurantService(
-        this.db
-      );
-
-      location.restaurants = await restaurantsService.getAll();
+      location.restaurants = await this.services.restaurant.getAll();
     }
     return location;
   }

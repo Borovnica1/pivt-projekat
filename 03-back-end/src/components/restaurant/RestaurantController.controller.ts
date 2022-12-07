@@ -9,7 +9,7 @@ import {
   IEditRestaurantServiceDto,
 } from "./dto/IEditRestaurant.dto";
 import filetype from "magic-bytes.js";
-import { basename, extname } from "path";
+import { basename, dirname, extname } from "path";
 import sizeOf from "image-size";
 import * as uuid from "uuid";
 import PhotoModel from "../photo/PhotoModel.model";
@@ -30,7 +30,9 @@ class RestaurantController extends BaseController {
   async getById(req: Request, res: Response) {
     const restaurantId: number = Number(req.params?.rId);
 
-    const restaurant = await this.services.restaurant.getById(restaurantId, {});
+    const restaurant = await this.services.restaurant.getById(restaurantId, {
+      loadPhotos: true,
+    });
 
     if (restaurant === null) return res.status(404).send("nema podaci");
 
@@ -46,7 +48,7 @@ class RestaurantController extends BaseController {
     }
 
     this.services.restaurant
-      .getById(restaurantId, {})
+      .getById(restaurantId, { loadPhotos: false })
       .then((result) => {
         if (result === null) {
           throw {
@@ -61,7 +63,7 @@ class RestaurantController extends BaseController {
           {
             name: data.name,
           },
-          {}
+          { loadPhotos: false }
         );
       })
       .then((result) => {
@@ -76,7 +78,7 @@ class RestaurantController extends BaseController {
     const restaurantId: number = +req.params?.rId;
 
     this.services.restaurant
-      .getById(restaurantId, {})
+      .getById(restaurantId, { loadPhotos: false })
       .then((result) => {
         if (result === null) {
           return res.status(404).send("Restaurant not found!");
@@ -104,7 +106,7 @@ class RestaurantController extends BaseController {
     const restaurantId: number = +req.params?.rId;
 
     this.services.restaurant
-      .getById(restaurantId, {})
+      .getById(restaurantId, { loadPhotos: false })
       .then(async (result) => {
         if (result === null) {
           return res.status(404).send("Restaurant not found!");
@@ -275,6 +277,51 @@ class RestaurantController extends BaseController {
           resizeOptions.prefix +
           filename
       );
+  }
+
+  async deletePhoto(req: Request, res: Response) {
+    const restaurantId: number = +req.params?.rId;
+    const photoId: number = +req.params?.pId;
+
+    this.services.restaurant
+      .getById(restaurantId, { loadPhotos: true })
+      .then((result) => {
+        if (result === null)
+          throw { status: 404, message: "Restaurant not found!" };
+        return result;
+      })
+      .then(async (restaurant) => {
+        const photo = restaurant.photos?.find(
+          (photo) => photo.photoId === photoId
+        );
+        if (!photo) {
+          throw { status: 404, message: "Photo not found in this restaurant!" };
+        }
+        return photo;
+      })
+      .then(async (photo) => {
+        await this.services.photo.deleteById(photo.photoId);
+        return photo;
+      })
+      .then((photo) => {
+        const directoryPart =
+          DevConfig.server.static.path + "/" + dirname(photo.filePath);
+        const fileName = basename(photo.filePath);
+
+        for (const resize of DevConfig.fileUploads.photos.resize) {
+          const filePath = directoryPart + "/" + resize.prefix + fileName;
+          unlinkSync(filePath);
+        }
+
+        unlinkSync(DevConfig.server.static.path + "/" + photo.filePath);
+
+        res.send("Deleted!");
+      })
+      .catch((error) => {
+        res
+          .status(error?.status ?? 500)
+          .send(error?.message ?? "Server side error!");
+      });
   }
 }
 

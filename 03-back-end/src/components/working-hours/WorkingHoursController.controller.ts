@@ -20,7 +20,7 @@ export default class WorkingHoursController extends BaseController {
   getById(req: Request, res: Response) {
     const id: number = +req.params?.whId;
     this.services.workingHours
-      .getById(id, {})
+      .baseGetById(id, {})
       .then((result) => {
         if (result === null) {
           res.status(404).send({ message: "working-hours not found!" });

@@ -9,9 +9,6 @@ class RestaurantRouter implements IRouter {
     application: express.Application,
     resources: IApplicationResources
   ) {
-    const restaurantService: RestaurantService = new RestaurantService(
-      resources.databaseConnection
-    );
     const restaurantController: RestaurantController = new RestaurantController(
       resources.services
     );
@@ -35,6 +32,10 @@ class RestaurantRouter implements IRouter {
     application.post(
       "/api/restaurant/:rId/photo",
       restaurantController.uploadPhoto.bind(restaurantController)
+    );
+    application.delete(
+      "/api/restaurant/:rId/photo/:pId",
+      restaurantController.deletePhoto.bind(restaurantController)
     );
   }
 }

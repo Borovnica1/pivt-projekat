@@ -20,7 +20,7 @@ export default class ManagerController extends BaseController {
   getById(req: Request, res: Response) {
     const id: number = +req.params?.mId;
     this.services.manager
-      .getById(id, { removePassword: true })
+      .baseGetById(id, { removePassword: true })
       .then((result) => {
         if (result === null) {
           res.status(404).send({ message: "manager not found!" });
