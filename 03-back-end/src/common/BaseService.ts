@@ -83,14 +83,13 @@ export default abstract class BaseService<
 
   public async getAllByFieldNameAndValue(
     fieldName: string,
-    value: number,
+    value: any,
     options: IAdapterOptions
   ): Promise<ReturnModel[]> {
     const tableName = this.tableName();
 
     return new Promise((resolve, reject) => {
       const sql: string = `SELECT * FROM \`${tableName}\` WHERE  \`${fieldName}\` = ?;`;
-
       this.database
         .execute(sql, [value])
         .then(async ([rows]) => {

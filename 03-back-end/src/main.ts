@@ -19,6 +19,7 @@ import IAddRestaurant, {
   AddRestaurantValidator,
 } from "./components/restaurant/dto/IAddRestaurant.dto";
 import PhotoService from "./components/photo/PhotoService.service";
+import UserService from "./components/user/UserService.service";
 import fileUpload = require("express-fileupload");
 
 async function main() {
@@ -48,6 +49,7 @@ async function main() {
       manager: null,
       workingHours: null,
       photo: null,
+      user: null,
     },
   };
 
@@ -68,6 +70,10 @@ async function main() {
     applicationResources.services
   );
   applicationResources.services.photo = new PhotoService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.user = new UserService(
     db,
     applicationResources.services
   );

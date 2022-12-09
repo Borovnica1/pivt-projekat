@@ -2,6 +2,7 @@ import { IConfig } from "./common/IConfig.interface";
 import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
 import ManagerRouter from "./components/manager/ManagerRouter.router";
 import WorkingHoursRouter from "./components/working-hours/WorkingHoursRouter.router";
+import UserRouter from './components/user/UserRouter.router';
 
 const DevConfig: IConfig = {
   server: {
@@ -36,6 +37,7 @@ const DevConfig: IConfig = {
     new RestaurantRouter(),
     new ManagerRouter(),
     new WorkingHoursRouter(),
+    new UserRouter(),
   ],
   fileUploads: {
     maxFiles: 5,

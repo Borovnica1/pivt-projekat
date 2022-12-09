@@ -42,7 +42,11 @@ export default class ManagerController extends BaseController {
     const passwordHash = bcrypt.hashSync(body.username, 10);
 
     this.services.manager
-      .add({ username: body.username, password_hash: passwordHash })
+      .add({
+        email: body.email,
+        username: body.username,
+        password_hash: passwordHash,
+      })
       .then((result) => {
         res.send(result);
       })
