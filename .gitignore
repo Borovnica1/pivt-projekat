@@ -3,3 +3,4 @@ dist/
 logs/
 temp/
 03-back-end/static/uploads
+03-back-end/src/config.mail.ts

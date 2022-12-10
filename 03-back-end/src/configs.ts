@@ -3,6 +3,7 @@ import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
 import ManagerRouter from "./components/manager/ManagerRouter.router";
 import WorkingHoursRouter from "./components/working-hours/WorkingHoursRouter.router";
 import UserRouter from './components/user/UserRouter.router';
+import { MailConfigurationParameters } from "./config.mail";
 
 const DevConfig: IConfig = {
   server: {
@@ -73,6 +74,15 @@ const DevConfig: IConfig = {
       ],
     },
   },
+  mail: {
+    host: "smtp.office365.com",
+    port: 587,
+    email: "",
+    password: "",
+    debug: true,
+  },
 };
+
+DevConfig.mail = MailConfigurationParameters;
 
 export { DevConfig };
