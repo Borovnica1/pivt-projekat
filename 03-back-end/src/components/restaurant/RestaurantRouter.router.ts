@@ -3,6 +3,7 @@ import RestaurantService from "./RestaurantService.service";
 import * as express from "express";
 import IApplicationResources from "../../common/IApplicationResources.interface";
 import IRouter from "../../common/IRouter.interface";
+import AuthMiddleware from "../middlewares/AuthMiddleware";
 
 class RestaurantRouter implements IRouter {
   public setUpRoutes(
@@ -15,6 +16,7 @@ class RestaurantRouter implements IRouter {
 
     application.get(
       "/api/restaurant",
+      AuthMiddleware.getVerifier("manager", "user"),
       restaurantController.getAll.bind(restaurantController)
     );
     application.get(

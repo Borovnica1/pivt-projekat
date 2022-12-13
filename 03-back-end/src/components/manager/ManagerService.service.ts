@@ -46,4 +46,18 @@ export default class ManagerService extends BaseService<
   public async edit(id: number, data: IEditManager): Promise<ManagerModel> {
     return this.baseEdit(id, data, { removePassword: true });
   }
+
+  public async getByUsername(username: string): Promise<ManagerModel | null> {
+    return new Promise((resolve, reject) => {
+      this.getAllByFieldNameAndValue("username", username, undefined).then(result => {
+        if (result.length === 0) {
+          return resolve(null);
+        }
+
+        resolve(result[0]);
+      }).catch(error => {
+        reject(error);
+      })
+    })
+  }
 }

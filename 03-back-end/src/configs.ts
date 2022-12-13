@@ -2,8 +2,10 @@ import { IConfig } from "./common/IConfig.interface";
 import RestaurantRouter from "./components/restaurant/RestaurantRouter.router";
 import ManagerRouter from "./components/manager/ManagerRouter.router";
 import WorkingHoursRouter from "./components/working-hours/WorkingHoursRouter.router";
-import UserRouter from './components/user/UserRouter.router';
+import UserRouter from "./components/user/UserRouter.router";
 import { MailConfigurationParameters } from "./config.mail";
+import AuthRouter from "./components/auth/AuthRouter.router";
+import { readFileSync } from "fs";
 
 const DevConfig: IConfig = {
   server: {
@@ -39,6 +41,7 @@ const DevConfig: IConfig = {
     new ManagerRouter(),
     new WorkingHoursRouter(),
     new UserRouter(),
+    new AuthRouter(),
   ],
   fileUploads: {
     maxFiles: 5,
@@ -80,6 +83,48 @@ const DevConfig: IConfig = {
     email: "",
     password: "",
     debug: true,
+  },
+  auth: {
+    manager: {
+      algorithm: "RS256",
+      issuer: "pivt",
+      tokens: {
+        auth: {
+          duration: 60 * 60 * 24,
+          keys: {
+            public: readFileSync("./.keystore/rsa.public", "ascii"),
+            private: readFileSync("./.keystore/rsa.private", "ascii"),
+          },
+        },
+        refresh: {
+          duration: 60 * 60 * 24 * 60,
+          keys: {
+            public: readFileSync("./.keystore/rsa.public", "ascii"),
+            private: readFileSync("./.keystore/rsa.private", "ascii"),
+          },
+        },
+      },
+    },
+    user: {
+      algorithm: "RS256",
+      issuer: "pivt",
+      tokens: {
+        auth: {
+          duration: 60 * 60 * 24,
+          keys: {
+            public: readFileSync("./.keystore/rsa.public", "ascii"),
+            private: readFileSync("./.keystore/rsa.private", "ascii"),
+          },
+        },
+        refresh: {
+          duration: 60 * 60 * 24 * 60,
+          keys: {
+            public: readFileSync("./.keystore/rsa.public", "ascii"),
+            private: readFileSync("./.keystore/rsa.private", "ascii"),
+          },
+        },
+      },
+    },
   },
 };
 

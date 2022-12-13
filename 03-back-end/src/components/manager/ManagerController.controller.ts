@@ -39,7 +39,7 @@ export default class ManagerController extends BaseController {
       return res.status(400).send(AddManagerValidator.errors);
     }
 
-    const passwordHash = bcrypt.hashSync(body.username, 10);
+    const passwordHash = bcrypt.hashSync(body.password, 10);
 
     this.services.manager
       .add({
