@@ -21,22 +21,27 @@ class RestaurantRouter implements IRouter {
     );
     application.get(
       "/api/restaurant/:rId",
+      AuthMiddleware.getVerifier("manager", "user"),
       restaurantController.getById.bind(restaurantController)
     );
     application.put(
       "/api/restaurant/:rId",
+      AuthMiddleware.getVerifier("manager"),
       restaurantController.edit.bind(restaurantController)
     );
     application.delete(
       "/api/restaurant/:rId",
+      AuthMiddleware.getVerifier("manager"),
       restaurantController.delete.bind(restaurantController)
     );
     application.post(
       "/api/restaurant/:rId/photo",
+      AuthMiddleware.getVerifier("manager"),
       restaurantController.uploadPhoto.bind(restaurantController)
     );
     application.delete(
       "/api/restaurant/:rId/photo/:pId",
+      AuthMiddleware.getVerifier("manager"),
       restaurantController.deletePhoto.bind(restaurantController)
     );
   }

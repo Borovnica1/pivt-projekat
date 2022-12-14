@@ -32,6 +32,13 @@ class UserController extends BaseController {
 
   getById(req: Request, res: Response) {
     const id = +req.params?.uId;
+
+    if (req.authorisation?.role === "user") {
+      if (req.authorisation?.id !== id) {
+        return res.status(403).send("You do not have access to this resource!");
+      }
+    }
+
     this.services.user
       .baseGetById(id, {
         removePassword: true,
@@ -151,6 +158,12 @@ class UserController extends BaseController {
   editById(req: Request, res: Response) {
     const id: number = +req.params?.uId;
     const data = req.body as IEditUserDto;
+
+    if (req.authorisation?.role === "user") {
+      if (req.authorisation?.id !== id) {
+        return res.status(403).send("You do not have access to this resource!");
+      }
+    }
 
     if (!EditUserValidator(data)) {
       return res.status(400).send(EditUserValidator.errors);

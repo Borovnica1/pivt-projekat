@@ -6,6 +6,7 @@ import ITokenData from "./dto/ITokenData";
 import * as jwt from "jsonwebtoken";
 import { DevConfig } from "../../configs";
 import AuthMiddleware from "../middlewares/AuthMiddleware";
+import { IUserLoginDto } from "./dto/IUserLogin.dto";
 
 export default class AuthController extends BaseController {
   public async managerLogin(req: Request, res: Response) {
@@ -88,6 +89,97 @@ export default class AuthController extends BaseController {
           algorithm: DevConfig.auth.manager.algorithm,
           issuer: DevConfig.auth.manager.issuer,
           expiresIn: DevConfig.auth.manager.tokens.auth.duration,
+        }
+      );
+
+      res.send({
+        authToken: authToken,
+      });
+    } catch (error) {
+      res.status(error?.status ?? 500).send(error?.message);
+    }
+  }
+
+  public async userLogin(req: Request, res: Response) {
+    const data = req.body as IUserLoginDto;
+
+    this.services.user
+      .getByEmail(data.email)
+      .then((result) => {
+        if (result === null) {
+          throw {
+            status: 404,
+            message: "User account not found!",
+          };
+        }
+        return result;
+      })
+      .then((user) => {
+        if (!bcrypt.compareSync(data.password, user.passwordHash)) {
+          throw {
+            status: 404,
+            message: "User account not found!",
+          };
+        }
+
+        return user;
+      })
+      .then((user) => {
+        const tokenData: ITokenData = {
+          role: "user",
+          id: user.userId,
+          identity: user.email,
+        };
+
+        const authToken = jwt.sign(
+          tokenData,
+          DevConfig.auth.user.tokens.auth.keys.private,
+          {
+            algorithm: DevConfig.auth.user.algorithm,
+            issuer: DevConfig.auth.user.issuer,
+            expiresIn: DevConfig.auth.user.tokens.auth.duration,
+          }
+        );
+
+        const refreshToken = jwt.sign(
+          tokenData,
+          DevConfig.auth.user.tokens.refresh.keys.private,
+          {
+            algorithm: DevConfig.auth.user.algorithm,
+            issuer: DevConfig.auth.user.issuer,
+            expiresIn: DevConfig.auth.user.tokens.refresh.duration,
+          }
+        );
+
+        res.send({
+          authToken: authToken,
+          refreshToken: refreshToken,
+        });
+      })
+      .catch((error) => {
+        setTimeout(() => {
+          res.status(error?.status ?? 500).send(error?.message);
+        }, 1500);
+      });
+  }
+
+  userRefresh(req: Request, res: Response) {
+    const refreshTokenHeader: string = req.headers?.authorization ?? "";
+
+    try {
+      const tokenData = AuthMiddleware.validateTokenAs(
+        refreshTokenHeader,
+        "user",
+        "refresh"
+      );
+
+      const authToken = jwt.sign(
+        tokenData,
+        DevConfig.auth.user.tokens.auth.keys.private,
+        {
+          algorithm: DevConfig.auth.user.algorithm,
+          issuer: DevConfig.auth.user.issuer,
+          expiresIn: DevConfig.auth.user.tokens.auth.duration,
         }
       );
 

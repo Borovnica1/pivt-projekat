@@ -1,6 +1,7 @@
 import { Application } from "express";
 import IApplicationResourcesInterface from "../../common/IApplicationResources.interface";
 import IRouter from "../../common/IRouter.interface";
+import AuthMiddleware from "../middlewares/AuthMiddleware";
 import ManagerController from "./ManagerController.controller";
 
 export default class ManagerRouter implements IRouter {
@@ -12,19 +13,21 @@ export default class ManagerRouter implements IRouter {
       resources.services
     );
     application.get(
-      "/api/manager",
+      "/api/manager", AuthMiddleware.getVerifier('manager'),
       managerController.getAll.bind(managerController)
     );
     application.get(
-      "/api/manager/:mId",
+      "/api/manager/:mId", AuthMiddleware.getVerifier('manager'),
       managerController.getById.bind(managerController)
     );
     application.post(
       "/api/manager",
+      AuthMiddleware.getVerifier("manager"),
       managerController.add.bind(managerController)
     );
     application.put(
       "/api/manager/:mId",
+      AuthMiddleware.getVerifier("manager"),
       managerController.edit.bind(managerController)
     );
   }
