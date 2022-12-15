@@ -4,6 +4,7 @@ import RestaurantService from "../restaurant/RestaurantService.service";
 import RestaurantModel from "../restaurant/RestaurantModel.model";
 import IAddLocation from "./dto/IAddLocation.dto";
 import BaseService from "../../common/BaseService";
+import IEditLocation from "./dto/IEditLocation.dto";
 
 interface ILocationAdapterOptions {
   loadRestaurants: boolean;
@@ -31,7 +32,12 @@ class LocationService extends BaseService<
     location.locationName = data?.location_name;
 
     if (options.loadRestaurants) {
-      location.restaurants = await this.services.restaurant.getAll();
+      location.restaurants =
+        await this.services.restaurant.getAllByFieldNameAndValue(
+          "location_id",
+          +data?.location_id,
+          {}
+        );
     }
     return location;
   }
@@ -64,7 +70,7 @@ class LocationService extends BaseService<
     return this.baseAdd(data, DefaultLocationAdapterOptions);
   }
 
-  public async edit(id, data: IAddLocation): Promise<LocationModel> {
+  public async edit(id, data: IEditLocation): Promise<LocationModel> {
     return this.baseEdit(id, data, DefaultLocationAdapterOptions);
   }
 }

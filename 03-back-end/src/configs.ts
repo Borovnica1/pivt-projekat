@@ -6,6 +6,7 @@ import UserRouter from "./components/user/UserRouter.router";
 import { MailConfigurationParameters } from "./config.mail";
 import AuthRouter from "./components/auth/AuthRouter.router";
 import { readFileSync } from "fs";
+import { LocationRouter } from "./components/location/LocationRouter.router";
 
 const DevConfig: IConfig = {
   server: {
@@ -42,6 +43,7 @@ const DevConfig: IConfig = {
     new WorkingHoursRouter(),
     new UserRouter(),
     new AuthRouter(),
+    new LocationRouter(),
   ],
   fileUploads: {
     maxFiles: 5,
