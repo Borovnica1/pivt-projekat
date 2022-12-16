@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import ITokenData from "../auth/dto/ITokenData";
-import * as jwt from 'jsonwebtoken';
+import * as jwt from "jsonwebtoken";
 import { DevConfig } from "../../configs";
 
 export default class AuthMiddleware {
   public static getVerifier(
-    ...allowedRoles: ("user" | "manager")[]
+    ...allowedRoles: ("user" | "manager" | "administrator")[]
   ): (req: Request, res: Response, next: NextFunction) => void {
     return (req: Request, res: Response, next: NextFunction) => {
       this.verifyAuthToken(req, res, next, allowedRoles);
@@ -16,7 +16,7 @@ export default class AuthMiddleware {
     req: Request,
     res: Response,
     next: NextFunction,
-    allowedRoles: ("user" | "manager")[]
+    allowedRoles: ("user" | "manager" | "administrator")[]
   ) {
     const tokenHeader: string = req.headers?.authorization ?? ""; // "Bearer TOKEN"
 
@@ -50,7 +50,7 @@ export default class AuthMiddleware {
 
   public static validateTokenAs(
     tokenString: string,
-    role: "user" | "manager",
+    role: "user" | "manager" | "administrator",
     type: "auth" | "refresh"
   ): ITokenData {
     if (tokenString === "") {
