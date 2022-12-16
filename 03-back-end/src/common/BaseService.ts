@@ -217,7 +217,6 @@ export default abstract class BaseService<
         .execute(sql, [id])
         .then(async (result) => {
           const info: any = result;
-
           if (info[0]?.affectedRows === 0) {
             return reject({
               message:

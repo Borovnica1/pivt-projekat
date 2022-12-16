@@ -1,4 +1,6 @@
-import RestaurantModel from "./RestaurantModel.model";
+import RestaurantModel, {
+  RestaurantManagerModel,
+} from "./RestaurantModel.model";
 import * as mysql2 from "mysql2/promise";
 import IAdapterOptions from "../../common/IAdapterOptions.interface";
 import BaseService from "../../common/BaseService";
@@ -91,7 +93,49 @@ class RestaurantService extends BaseService<
   }
 
   public async deleteById(id: number): Promise<true> {
-    return this.baseDeleteById(id);
+    return new Promise((resolve, reject) => {
+      this.services.restaurant
+        .startTransaction()
+        .then(async () => {
+          await this.deleteRestaurantManager(id);
+          await this.baseDeleteById(id);
+          return true;
+        })
+        .then((result) => {
+          if (result) {
+            this.services.restaurant.commitChanges();
+          }
+          resolve(true);
+        })
+        .catch((error) => {
+          this.services.restaurant.rollbackChanges();
+          reject(error);
+        });
+    });
+  }
+
+  public async deleteRestaurantManager(resturantId: number): Promise<true> {
+    return new Promise((resolve, reject) => {
+      const sql: string =
+        "DELETE FROM restaurant_manager WHERE restaurant_id = ?;";
+
+      this.db
+        .execute(sql, [resturantId])
+        .then(async (result) => {
+          const info: any = result;
+          if (info[0]?.affectedRows === 0) {
+            return reject({
+              message:
+                "Could not delete this items from the restaurant_manager table!",
+            });
+          }
+
+          resolve(true);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 
   public async addRestaurantManager(
@@ -105,6 +149,35 @@ class RestaurantService extends BaseService<
         .execute(sql, [restaurantId, managerId])
         .then((result) => {
           resolve(result);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  public async getRestaurantManagerByRestaurantId(
+    restaurantId: number
+  ): Promise<RestaurantManagerModel> {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM restaurant_manager WHERE restaurant_id = ?";
+
+      this.db
+        .execute(sql, [restaurantId])
+        .then(([rows]) => {
+          if (rows === undefined) {
+            return resolve(null);
+          }
+
+          if (Array.isArray(rows) && rows.length === 0) {
+            return resolve(null);
+          }
+
+          resolve({
+            restaurantManagerId: +rows[0]?.restaurant_manager_id,
+            managerId: +rows[0]?.manager_id,
+            restaurantId: +rows[0]?.restaurant_id,
+          });
         })
         .catch((error) => {
           reject(error);

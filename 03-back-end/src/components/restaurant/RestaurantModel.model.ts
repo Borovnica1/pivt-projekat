@@ -6,4 +6,10 @@ class RestaurantModel {
   photos?: PhotoModel[];
 }
 
-export default RestaurantModel;
+class RestaurantManagerModel {
+  restaurantManagerId: number;
+  restaurantId: number;
+  managerId: number;
+}
+
+export { RestaurantModel as default, RestaurantManagerModel };

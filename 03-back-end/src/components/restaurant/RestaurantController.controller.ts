@@ -76,9 +76,25 @@ class RestaurantController extends BaseController {
 
   async delete(req: Request, res: Response) {
     const restaurantId: number = +req.params?.rId;
-
+    const managerId = req.authorisation.id;
+    
     this.services.restaurant
       .getById(restaurantId, { loadPhotos: false })
+      .then(async (restaurant) => {
+        // check if restaurant is managed by this current manager
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
+
+        if (managerId !== restaurantManager.managerId) {
+          throw {
+            status: 403,
+            message: "You dont have right to delete this restaurant!",
+          };
+        }
+        return restaurant;
+      })
       .then((result) => {
         if (result === null) {
           return res.status(404).send("Restaurant not found!");
@@ -282,6 +298,7 @@ class RestaurantController extends BaseController {
   async deletePhoto(req: Request, res: Response) {
     const restaurantId: number = +req.params?.rId;
     const photoId: number = +req.params?.pId;
+    const managerId = req.authorisation.id;
 
     this.services.restaurant
       .getById(restaurantId, { loadPhotos: true })
@@ -289,6 +306,21 @@ class RestaurantController extends BaseController {
         if (result === null)
           throw { status: 404, message: "Restaurant not found!" };
         return result;
+      })
+      .then(async (restaurant) => {
+        // check if restaurant is managed by this current manager
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
+
+        if (managerId !== restaurantManager.managerId) {
+          throw {
+            status: 403,
+            message: "You dont have right to delete this restaurants photos!",
+          };
+        }
+        return restaurant;
       })
       .then(async (restaurant) => {
         const photo = restaurant.photos?.find(
