@@ -42,6 +42,7 @@ class RestaurantController extends BaseController {
   async edit(req: Request, res: Response) {
     const restaurantId: number = Number(req.params?.rId);
     const data = req.body as IEditRestaurantServiceDto;
+    const managerId = req.authorisation.id;
 
     if (!EditRestaurantValidator(data)) {
       return res.status(400).send(EditRestaurantValidator.errors);
@@ -56,6 +57,22 @@ class RestaurantController extends BaseController {
             message: "Restaurant not found!",
           };
         }
+        return result;
+      })
+      .then(async (restaurant) => {
+        // check if restaurant is managed by this current manager
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
+
+        if (managerId !== restaurantManager.managerId) {
+          throw {
+            status: 403,
+            message: "You dont have right to edit this restaurant!",
+          };
+        }
+        return restaurant;
       })
       .then(() => {
         return this.services.restaurant.editById(
@@ -77,7 +94,7 @@ class RestaurantController extends BaseController {
   async delete(req: Request, res: Response) {
     const restaurantId: number = +req.params?.rId;
     const managerId = req.authorisation.id;
-    
+
     this.services.restaurant
       .getById(restaurantId, { loadPhotos: false })
       .then(async (restaurant) => {
@@ -120,14 +137,32 @@ class RestaurantController extends BaseController {
 
   async uploadPhoto(req: Request, res: Response) {
     const restaurantId: number = +req.params?.rId;
+    const managerId = req.authorisation.id;
 
     this.services.restaurant
       .getById(restaurantId, { loadPhotos: false })
-      .then(async (result) => {
+      .then((result) => {
         if (result === null) {
           return res.status(404).send("Restaurant not found!");
         }
+        return result;
+      })
+      .then(async (restaurant) => {
+        // check if restaurant is managed by this current manager
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
 
+        if (managerId !== restaurantManager.managerId) {
+          throw {
+            status: 403,
+            message: "You dont have right to delete this photo!",
+          };
+        }
+        return restaurant;
+      })
+      .then(async () => {
         const uploadedFiles = this.doFileUpload(req, res);
 
         if (uploadedFiles === null) {
