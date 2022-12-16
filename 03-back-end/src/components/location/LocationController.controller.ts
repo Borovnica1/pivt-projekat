@@ -31,7 +31,7 @@ export default class LocationController extends BaseController {
   editById(req, res) {
     const data = req.body as IEditLocationServiceDto;
     this.services.location
-      .edit(req.params?.lId, {location_name: data.locationName})
+      .edit(req.params?.lId, { location_name: data.locationName })
       .then((result) => {
         res.send(result);
       })
@@ -51,7 +51,6 @@ export default class LocationController extends BaseController {
 
   add(req, res) {
     const data: IAddLocation = req.body;
-    console.log("reqqq body", req.body);
 
     if (!AddLocationValidator(data))
       return res.status(400).send(AddLocationValidator.errors);
@@ -66,22 +65,36 @@ export default class LocationController extends BaseController {
       });
   }
 
-  addRestaurant(req, res) {
+  addRestaurant(req: Request, res: Response) {
     const locationId = +req.params?.lId;
     const data: IAddRestaurant = req.body;
+    const managerId = req.authorisation.id;
 
     if (!AddRestaurantValidator(data)) {
       return res.status(404).send(AddRestaurantValidator.errors);
     }
 
-    this.services.restaurant
-      .add({ name: data.name, location_id: locationId })
-      .then((result) => {
-        res.send(result);
-      })
-      .catch((error) => {
-        console.log("eerr", error);
-        res.send(error.message);
-      });
+    this.services.restaurant.startTransaction().then(() => {
+      return this.services.restaurant
+        .add({ name: data.name, location_id: locationId })
+        .then(async (result) => {
+          // after adding restaurant connect restaurant_id and manager_id in restaurant_manager table
+
+          await this.services.restaurant
+            .addRestaurantManager(result.restaurantId, managerId)
+            .then((result) => {
+              return result;
+            })
+            .catch((error) => {
+              throw error;
+            });
+          this.services.restaurant.commitChanges();
+          res.send(result);
+        })
+        .catch((error) => {
+          this.services.restaurant.rollbackChanges();
+          res.send(error.message);
+        });
+    });
   }
 }

@@ -93,6 +93,24 @@ class RestaurantService extends BaseService<
   public async deleteById(id: number): Promise<true> {
     return this.baseDeleteById(id);
   }
+
+  public async addRestaurantManager(
+    restaurantId: number,
+    managerId: number
+  ): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const sql = `INSERT restaurant_manager SET restaurant_id = ?, manager_id = ?`;
+
+      this.db
+        .execute(sql, [restaurantId, managerId])
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
 }
 
 export default RestaurantService;
