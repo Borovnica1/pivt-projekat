@@ -3,6 +3,8 @@ import BaseController from "../../common/BaseController";
 import IAddRestaurant, {
   AddRestaurantValidator,
 } from "../restaurant/dto/IAddRestaurant.dto";
+import { DayInAWeek } from "../working-hours/Working-hoursModel.model";
+import { daysInAWeek } from "../working-hours/dto/IAddWorkingHours.dto";
 import IAddLocation, { AddLocationValidator } from "./dto/IAddLocation.dto";
 import { IEditLocationServiceDto } from "./dto/IEditLocation.dto";
 export default class LocationController extends BaseController {
@@ -88,6 +90,24 @@ export default class LocationController extends BaseController {
             .catch((error) => {
               throw error;
             });
+
+          // and also create default 7 days with working hours in wroking hours table
+
+          await Promise.all(
+            daysInAWeek.map((day) => {
+              return this.services.workingHours.add({
+                day: day as DayInAWeek,
+                restaurant_id: result.restaurantId,
+              });
+            })
+          )
+            .then((result) => {
+              return result;
+            })
+            .catch((error) => {
+              throw error;
+            });
+
           this.services.restaurant.commitChanges();
           res.send(result);
         })
