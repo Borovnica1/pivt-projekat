@@ -22,7 +22,6 @@ export default class ManagerRouter implements IRouter {
     );
     application.post(
       "/api/manager",
-      AuthMiddleware.getVerifier("manager"),
       managerController.add.bind(managerController)
     );
     application.put(

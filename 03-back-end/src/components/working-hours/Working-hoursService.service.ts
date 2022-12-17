@@ -3,7 +3,10 @@ import IAdapterOptionsInterface from "../../common/IAdapterOptions.interface";
 import IAddWorkingHours from "./dto/IAddWorkingHours.dto";
 import WorkingHoursModel from "./Working-hoursModel.model";
 
-export default class WorkingHoursService extends BaseService<WorkingHoursModel, {}> {
+export default class WorkingHoursService extends BaseService<
+  WorkingHoursModel,
+  {}
+> {
   tableName(): string {
     return "working_hours";
   }
@@ -24,6 +27,12 @@ export default class WorkingHoursService extends BaseService<WorkingHoursModel, 
 
   public async add(data: IAddWorkingHours): Promise<WorkingHoursModel> {
     return this.baseAdd(data, {});
+  }
+
+  public async getWokringHoursByRestaurantId(
+    restaurantId: number
+  ): Promise<WorkingHoursModel[]> {
+    return this.getAllByFieldNameAndValue("restaurant_id", restaurantId, {});
   }
 
   /* public async editById(

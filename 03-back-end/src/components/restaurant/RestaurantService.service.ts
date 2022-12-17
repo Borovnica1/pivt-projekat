@@ -8,7 +8,8 @@ import { IAddRestaurantServiceDto } from "./dto/IAddRestaurant.dto";
 import IEditRestaurant from "./dto/IEditRestaurant.dto";
 
 class IRestaurantOptions implements IAdapterOptions {
-  loadPhotos: boolean;
+  loadPhotos?: boolean;
+  loadWorkingHours?: boolean;
 }
 class RestaurantService extends BaseService<
   RestaurantModel,
@@ -34,6 +35,13 @@ class RestaurantService extends BaseService<
       restaurant.photos = restaurantPhotos;
     }
 
+    if (options.loadWorkingHours) {
+      const restaurantWorkingHours = await this.services.workingHours.getWokringHoursByRestaurantId(
+        restaurant.restaurantId
+      );
+      restaurant.workingHours = restaurantWorkingHours;
+    }
+
     return restaurant;
   }
 
@@ -51,7 +59,10 @@ class RestaurantService extends BaseService<
 
           for (const row of rows as mysql2.RowDataPacket[]) {
             restaurants.push(
-              await this.adaptToModel(row, { loadPhotos: true })
+              await this.adaptToModel(row, {
+                loadPhotos: true,
+                loadWorkingHours: true,
+              })
             );
           }
 
@@ -81,7 +92,7 @@ class RestaurantService extends BaseService<
   }
 
   public async add(data: IAddRestaurantServiceDto): Promise<RestaurantModel> {
-    return this.baseAdd(data, { loadPhotos: false });
+    return this.baseAdd(data, { loadPhotos: false, loadWorkingHours: false });
   }
 
   public async editById(

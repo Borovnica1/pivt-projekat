@@ -32,6 +32,7 @@ class RestaurantController extends BaseController {
 
     const restaurant = await this.services.restaurant.getById(restaurantId, {
       loadPhotos: true,
+      loadWorkingHours: true,
     });
 
     if (restaurant === null) return res.status(404).send("nema podaci");

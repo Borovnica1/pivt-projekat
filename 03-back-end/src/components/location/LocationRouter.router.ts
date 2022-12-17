@@ -21,7 +21,7 @@ export class LocationRouter implements IRouter {
     );
     application.put(
       "/api/location/:lId",
-      AuthMiddleware.getVerifier("manager"),
+      AuthMiddleware.getVerifier("administrator"),
       locationController.editById.bind(locationController)
     );
     application.get(
@@ -30,7 +30,7 @@ export class LocationRouter implements IRouter {
     );
     application.post(
       "/api/location",
-      AuthMiddleware.getVerifier("manager"),
+      AuthMiddleware.getVerifier("administrator"),
       locationController.add.bind(locationController)
     );
     application.post(
