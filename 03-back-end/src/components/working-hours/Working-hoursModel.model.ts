@@ -13,6 +13,7 @@ export default class WorkingHoursModel {
   day: DayInAWeek;
   openingHours: string;
   closingHours: string;
+  isClosed: string;
 }
 
 export { DayInAWeek };

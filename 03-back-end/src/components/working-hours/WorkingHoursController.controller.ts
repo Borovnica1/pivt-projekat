@@ -4,6 +4,11 @@ import {
   AddWorkingHoursValidator,
   IAddWorkingHoursServiceDto,
 } from "./dto/IAddWorkingHours.dto";
+import {
+  IEditWorkingHoursServiceDto,
+  EditWorkingHoursValidator,
+} from "./dto/IEditWorkingHours.dto";
+import IEditWorkingHours from "./dto/IEditWorkingHours.dto";
 
 export default class WorkingHoursController extends BaseController {
   getAll(req: Request, res: Response) {
@@ -47,6 +52,42 @@ export default class WorkingHoursController extends BaseController {
         closing_hours: body.closingHours,
         restaurant_id: restaurantId,
       })
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        res.status(500).send(error?.message);
+      });
+  }
+
+  edit(req: Request, res: Response) {
+    const workingHoursId: number = +req.params?.whId;
+    const body = req.body as IEditWorkingHoursServiceDto;
+
+     if (!EditWorkingHoursValidator(body)) {
+      return res.status(400).send(EditWorkingHoursValidator.errors);
+    }
+
+    const data: IEditWorkingHours = {};
+
+    if (body.openingHours) {
+      data.opening_hours = body.openingHours;
+    }
+
+    if (body.closingHours) {
+      data.closing_hours = body.closingHours;
+    }
+
+    if (body.isClosed) {
+      data.is_closed = body.isClosed;
+    }
+
+    this.services.workingHours
+      .editById(
+        workingHoursId,
+        data,
+        {}
+      )
       .then((result) => {
         res.send(result);
       })

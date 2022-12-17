@@ -26,5 +26,10 @@ export default class WorkingHoursRouter implements IRouter {
       "/api/restaurant/:rId/working-hours",
       workingHoursController.add.bind(workingHoursController)
     );
+
+     application.put(
+       "/api/restaurant/:rId/working-hours/:whId",
+       workingHoursController.edit.bind(workingHoursController)
+     );
   }
 }
