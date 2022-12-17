@@ -3,7 +3,9 @@ import { DayInAWeek } from "../Working-hoursModel.model";
 import { daysInAWeek } from "./IAddWorkingHours.dto";
 import addFormats from "ajv-formats";
 
-const ajv = new Ajv();
+const ajv = new Ajv({
+  $data: true,
+});
 addFormats(ajv);
 
 export default interface IEditWorkingHours {
@@ -28,6 +30,9 @@ const EditWorkingHoursValidator = ajv.compile({
     closingHours: {
       type: "string",
       format: "time",
+      formatMinimum: {
+        $data: "1/openingHours",
+      },
     },
     isClosed: {
       enum: ["1", "0"],
