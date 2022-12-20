@@ -405,7 +405,10 @@ class RestaurantController extends BaseController {
       .getById(restaurantId, {})
       .then((result) => {
         if (result === null) {
-          res.status(404).send("Restaurant not found!");
+          throw {
+            status: 404,
+            message: "Restaurant not found!",
+          };
         }
 
         return result;
