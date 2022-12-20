@@ -13,6 +13,7 @@ import { basename, dirname, extname } from "path";
 import sizeOf from "image-size";
 import * as uuid from "uuid";
 import PhotoModel from "../photo/PhotoModel.model";
+import { AddAddressValidator, IAddAddressDto } from "./dto/IAddAddress.dto";
 import sharp = require("sharp");
 
 class RestaurantController extends BaseController {
@@ -389,6 +390,46 @@ class RestaurantController extends BaseController {
         res
           .status(error?.status ?? 500)
           .send(error?.message ?? "Server side error!");
+      });
+  }
+
+  async addAddress(req: Request, res: Response) {
+    const restaurantId: number = +req.params?.rId;
+    const data = req.body as IAddAddressDto;
+
+    if (!AddAddressValidator) {
+      return res.status(400).send(AddAddressValidator.errors);
+    }
+
+    this.services.restaurant
+      .getById(restaurantId, {})
+      .then((result) => {
+        if (result === null) {
+          res.status(404).send("Restaurant not found!");
+        }
+
+        return result;
+      })
+      .then(async (restaurant) => {
+        const newAddress = await this.services.address
+          .add({
+            restaurant_id: restaurantId,
+            phone_number: data.phoneNumber,
+            place: data.place,
+            street_and_number: data.streetAndNumber,
+          })
+          .then((result) => {
+            if (result === null) {
+              throw { message: "Server error" };
+            }
+
+            return result;
+          });
+
+          res.send(newAddress);
+      })
+      .catch((error) => {
+        res.send(error);
       });
   }
 }

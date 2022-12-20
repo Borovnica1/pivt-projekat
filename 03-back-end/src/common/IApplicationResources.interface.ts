@@ -5,6 +5,7 @@ import RestaurantService from "../components/restaurant/RestaurantService.servic
 import WorkingHoursService from "../components/working-hours/Working-hoursService.service";
 import PhotoService from "../components/photo/PhotoService.service";
 import UserService from "../components/user/UserService.service";
+import AddressService from "../components/restaurant/AddressService.service";
 
 export default interface IApplicationResources {
   databaseConnection: mysql2.Connection;
@@ -18,4 +19,5 @@ export interface IServices {
   workingHours: WorkingHoursService;
   photo: PhotoService;
   user: UserService;
+  address: AddressService;
 }
