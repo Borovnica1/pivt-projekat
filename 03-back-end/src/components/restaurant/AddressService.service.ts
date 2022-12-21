@@ -38,4 +38,8 @@ export default class AddressService extends BaseService<
   edit(addressId: number, data: IEditAddress): Promise<AddressModel> {
     return this.baseEdit(addressId, data, {});
   }
+
+  delete(addressId: number) {
+    return this.baseDeleteById(addressId);
+  }
 }
