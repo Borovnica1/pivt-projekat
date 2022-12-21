@@ -2,6 +2,7 @@ import BaseService from "../../common/BaseService";
 import { IAddAddress } from "./dto/IAddAddress.dto";
 import AddressModel from "./AddressModel.model";
 import IAdapterOptions from "../../common/IAdapterOptions.interface";
+import { IEditAddress } from "./dto/IEditAddress.dto";
 
 export interface IAddressAdapterOptions extends IAdapterOptions {}
 
@@ -22,7 +23,7 @@ export default class AddressService extends BaseService<
 
       address.addressId = +data?.address_id;
       address.restaurantId = data?.restaurant_id;
-      address.streetAndNmber = data?.street_and_number;
+      address.streetAndNumber = data?.street_and_number;
       address.place = data?.place;
       address.phoneNumber = data?.phone_number;
 
@@ -32,5 +33,9 @@ export default class AddressService extends BaseService<
 
   add(data: IAddAddress): Promise<AddressModel> {
     return this.baseAdd(data, {});
+  }
+
+  edit(addressId: number, data: IEditAddress): Promise<AddressModel> {
+    return this.baseEdit(addressId, data, {});
   }
 }

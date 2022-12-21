@@ -4,7 +4,7 @@ export default class AddressModel implements IModel {
   addressId: number;
   restaurantId: number;
 
-  streetAndNmber: string;
+  streetAndNumber: string;
   place: string;
   phoneNumber: string;
 }
