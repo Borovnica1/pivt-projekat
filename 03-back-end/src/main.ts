@@ -20,8 +20,9 @@ import IAddRestaurant, {
 } from "./components/restaurant/dto/IAddRestaurant.dto";
 import PhotoService from "./components/photo/PhotoService.service";
 import UserService from "./components/user/UserService.service";
-import AddressService from './components/restaurant/AddressService.service';
+import AddressService from "./components/restaurant/AddressService.service";
 import fileUpload = require("express-fileupload");
+import DayOffService from "./components/restaurant/DayOffService.service copy";
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -52,6 +53,7 @@ async function main() {
       photo: null,
       user: null,
       address: null,
+      dayOff: null,
     },
   };
 
@@ -80,6 +82,10 @@ async function main() {
     applicationResources.services
   );
   applicationResources.services.address = new AddressService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.dayOff = new DayOffService(
     db,
     applicationResources.services
   );

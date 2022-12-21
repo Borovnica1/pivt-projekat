@@ -1,8 +1,18 @@
 import BaseService from "../../common/BaseService";
 import { IAddAddress } from "./dto/IAddAddress.dto";
-import AddressModel from "./AddressModel.model";
 import IAdapterOptions from "../../common/IAdapterOptions.interface";
 import { IEditAddress } from "./dto/IEditAddress.dto";
+
+import IModel from "../../common/IModel.interface";
+
+class AddressModel implements IModel {
+  addressId: number;
+  restaurantId: number;
+
+  streetAndNumber: string;
+  place: string;
+  phoneNumber: string;
+}
 
 export interface IAddressAdapterOptions extends IAdapterOptions {}
 
