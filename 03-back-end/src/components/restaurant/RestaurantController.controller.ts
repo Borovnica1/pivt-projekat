@@ -462,6 +462,21 @@ class RestaurantController extends BaseController {
         }
         return result;
       })
+      .then(async (restaurant) => {
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
+
+        if (restaurantManager.managerId !== req.authorisation.id) {
+          throw {
+            status: 403,
+            message: "You dont have permission to edit this address!",
+          };
+        }
+
+        return restaurant;
+      })
       .then(() => {
         const address: IEditAddress = {};
 
