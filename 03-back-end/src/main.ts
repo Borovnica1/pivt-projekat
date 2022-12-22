@@ -23,6 +23,7 @@ import UserService from "./components/user/UserService.service";
 import AddressService from "./components/restaurant/AddressService.service";
 import fileUpload = require("express-fileupload");
 import DayOffService from "./components/restaurant/DayOffService.service copy";
+import TableService from './components/restaurant/TableService.service';
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -54,6 +55,7 @@ async function main() {
       user: null,
       address: null,
       dayOff: null,
+      table: null,
     },
   };
 
@@ -86,6 +88,10 @@ async function main() {
     applicationResources.services
   );
   applicationResources.services.dayOff = new DayOffService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.table = new TableService(
     db,
     applicationResources.services
   );

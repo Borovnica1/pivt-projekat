@@ -30,6 +30,12 @@ import {
   IEditDayOff,
   IEditDayOffDto,
 } from "./dto/IEditDayOff.dto";
+import {
+  AddTableValidator,
+  IAddTable,
+  IAddTableDto,
+} from "./dto/IAddTable.dto";
+import { EditTableValidator, IEditTableDto } from "./dto/IEditTable.dto";
 
 class RestaurantController extends BaseController {
   async getAll(req: Request, res: Response) {
@@ -737,6 +743,178 @@ class RestaurantController extends BaseController {
               .status(406)
               .send(
                 "Could not delete this day off due to an integrity constraint check!"
+              );
+          });
+      })
+      .catch((error) => {
+        res.status(500).send(error?.message);
+      });
+  }
+
+  async addTable(req: Request, res: Response) {
+    const restaurantId: number = +req.params?.rId;
+    const data = req.body as IAddTableDto;
+    const managerId = req.authorisation.id;
+
+    if (!AddTableValidator(data)) {
+      return res.status(400).send(AddTableValidator.errors);
+    }
+
+    this.services.restaurant
+      .getById(restaurantId, {})
+      .then((result) => {
+        if (result === null) {
+          throw {
+            status: 404,
+            message: "Restaurant not found!",
+          };
+        }
+
+        return result;
+      })
+      .then(async (restaurant) => {
+        // check if restaurant is managed by this current manager
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
+
+        if (managerId !== restaurantManager.managerId) {
+          throw {
+            status: 403,
+            message: "You dont have right to add table for this restaurant!",
+          };
+        }
+        return restaurant;
+      })
+
+      .then(async () => {
+        const newTable = await this.services.table
+          .add({
+            restaurant_id: restaurantId,
+            table_capacity: data.tableCapacity,
+            table_name: data.tableName,
+            table_max_reservation_duration: data.tableMaxReservationDuration,
+          })
+          .then((result) => {
+            if (result === null) {
+              throw { message: "Server error" };
+            }
+
+            return result;
+          });
+
+        res.send(newTable);
+      })
+      .catch((error) => {
+        res.send(error);
+      });
+  }
+
+  async editTable(req: Request, res: Response) {
+    const restaurantId: number = Number(req.params?.rId);
+    const tableId: number = Number(req.params?.tId);
+    const data = req.body as IEditTableDto;
+
+    if (!EditTableValidator(data)) {
+      return res.status(400).send(EditTableValidator.errors);
+    }
+
+    this.services.restaurant
+      .getById(restaurantId, { loadPhotos: false })
+      .then((result) => {
+        if (result === null) {
+          throw {
+            status: 404,
+            message: "Restaurant not found!",
+          };
+        }
+        return result;
+      })
+      .then(async (restaurant) => {
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
+
+        if (restaurantManager.managerId !== req.authorisation.id) {
+          throw {
+            status: 403,
+            message: "You dont have permission to edit this table!",
+          };
+        }
+
+        return restaurant;
+      })
+      .then(() => {
+        const table = {} as IAddTable;
+
+        if (data.tableName) {
+          table.table_name = data.tableName;
+        }
+
+        if (data.tableCapacity) {
+          table.table_capacity = data.tableCapacity;
+        }
+
+        if (data.tableMaxReservationDuration) {
+          table.table_max_reservation_duration =
+            data.tableMaxReservationDuration;
+        }
+
+        return this.services.table.edit(tableId, table);
+      })
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        res.status(error?.status ?? 500).send(error?.message);
+      });
+  }
+
+  async deleteTable(req: Request, res: Response) {
+    const restaurantId: number = +req.params?.rId;
+    const tableId: number = Number(req.params?.tId);
+    const managerId = req.authorisation.id;
+
+    this.services.restaurant
+      .getById(restaurantId, { loadPhotos: false })
+      .then((result) => {
+        if (result === null) {
+          throw {
+            status: 404,
+            message: "Restaurant not found!",
+          };
+        }
+
+        return result;
+      })
+      .then(async (restaurant) => {
+        // check if restaurant is managed by this current manager
+        const restaurantManager =
+          await this.services.restaurant.getRestaurantManagerByRestaurantId(
+            restaurantId
+          );
+
+        if (managerId !== restaurantManager.managerId) {
+          throw {
+            status: 403,
+            message: "You dont have right to delete this table!",
+          };
+        }
+        return restaurant;
+      })
+      .then((result) => {
+        this.services.table
+          .delete(tableId)
+          .then((result) => {
+            res.send("This table has been deleted!");
+          })
+          .catch((error) => {
+            res
+              .status(406)
+              .send(
+                "Could not delete this table due to an integrity constraint check!"
               );
           });
       })

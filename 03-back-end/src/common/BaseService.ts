@@ -10,6 +10,7 @@ export default abstract class BaseService<
 > {
   private database: mysql2.Connection;
   private allServices: IServices;
+  private databaseName: string = "pivt_app";
 
   constructor(databaseConnection: mysql2.Connection, services: IServices) {
     this.database = databaseConnection;
@@ -131,8 +132,7 @@ export default abstract class BaseService<
         .map((property) => "`" + property + "` = ?")
         .join(", ");
       const sqlValues = dataProperties.map((property) => data[property]);
-      const sql: string = `INSERT ${tableName} SET ${sqlPairs}`;
-
+      const sql: string = `INSERT ${this.databaseName}.${tableName} SET ${sqlPairs}`;
       this.db
         .execute(sql, sqlValues)
         .then(async (result) => {
@@ -176,7 +176,7 @@ export default abstract class BaseService<
         .join(", ");
       const sqlValues = dataProperties.map((property) => data[property]);
       sqlValues.push(id);
-      const sql: string = `UPDATE ${tableName} SET ${sqlPairs} WHERE ${tableName}_id = ?;`;
+      const sql: string = `UPDATE ${this.databaseName}.${tableName} SET ${sqlPairs} WHERE ${tableName}_id = ?;`;
 
       this.db
         .execute(sql, sqlValues)
@@ -211,7 +211,13 @@ export default abstract class BaseService<
 
     return new Promise((resolve, reject) => {
       const sql: string =
-        "DELETE FROM " + tableName + " WHERE " + tableName + "_id = ?;";
+        "DELETE FROM " +
+        this.databaseName +
+        "." +
+        tableName +
+        " WHERE " +
+        tableName +
+        "_id = ?;";
 
       this.db
         .execute(sql, [id])
