@@ -20,7 +20,11 @@ import {
   IEditAddress,
   IEditAddressDto,
 } from "./dto/IEditAddress.dto";
-import { AddDayOffValidator, IAddDayOffDto } from "./dto/IAddDayOff.dto";
+import {
+  AddDayOffValidator,
+  IAddDayOffDto,
+  IAddDayOff,
+} from "./dto/IAddDayOff.dto";
 import {
   EditDayOffValidator,
   IEditDayOff,
@@ -670,10 +674,17 @@ class RestaurantController extends BaseController {
         return restaurant;
       })
       .then(() => {
-        return this.services.dayOff.edit(dayOffId, {
-          day_off_date: data.dayOffDate ?? null,
-          reason: data.reason ?? null,
-        });
+        const dayOff = {} as IAddDayOff;
+
+        if (data.dayOffDate) {
+          dayOff.day_off_date = data.dayOffDate;
+        }
+
+        if (data.reason) {
+          dayOff.reason = data.reason;
+        }
+
+        return this.services.dayOff.edit(dayOffId, dayOff);
       })
       .then((result) => {
         res.send(result);
