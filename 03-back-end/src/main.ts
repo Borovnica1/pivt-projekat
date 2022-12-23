@@ -24,6 +24,7 @@ import AddressService from "./components/restaurant/AddressService.service";
 import fileUpload = require("express-fileupload");
 import DayOffService from "./components/restaurant/DayOffService.service copy";
 import TableService from './components/restaurant/TableService.service';
+import ReservationService from './components/reservation/ReservationService.service';
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -56,6 +57,7 @@ async function main() {
       address: null,
       dayOff: null,
       table: null,
+      reservation: null,
     },
   };
 
@@ -92,6 +94,10 @@ async function main() {
     applicationResources.services
   );
   applicationResources.services.table = new TableService(
+    db,
+    applicationResources.services
+  );
+  applicationResources.services.reservation = new ReservationService(
     db,
     applicationResources.services
   );
