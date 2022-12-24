@@ -10,7 +10,6 @@ class UserRouter implements IRouter {
     resources: IApplicationResources
   ) {
     const userController = new UserController(resources.services);
-
     application.get(
       "/api/user",
       AuthMiddleware.getVerifier("manager"),
@@ -31,6 +30,11 @@ class UserRouter implements IRouter {
       userController.editById.bind(userController)
     );
     application.get("/api/user/activate/:code", userController.activate.bind(userController));
+    application.post(
+      "/api/user/resetPassword",
+      userController.passwordReset.bind(userController)
+    );
+    
   }
 }
 

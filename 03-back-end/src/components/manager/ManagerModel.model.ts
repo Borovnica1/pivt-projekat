@@ -6,4 +6,6 @@ export default class ManagerModel implements IModel {
   passwordHash?: string;
   createdAt: string;
   isActive: boolean;
+  activationCode: string | null;
+  passwordResetCode: string | null;
 }

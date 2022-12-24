@@ -49,15 +49,36 @@ export default class ManagerService extends BaseService<
 
   public async getByUsername(username: string): Promise<ManagerModel | null> {
     return new Promise((resolve, reject) => {
-      this.getAllByFieldNameAndValue("username", [username], undefined).then(result => {
-        if (result.length === 0) {
-          return resolve(null);
-        }
+      this.getAllByFieldNameAndValue("username", [username], undefined)
+        .then((result) => {
+          if (result.length === 0) {
+            return resolve(null);
+          }
 
-        resolve(result[0]);
-      }).catch(error => {
-        reject(error);
-      })
-    })
+          resolve(result[0]);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  public async getByEmail(
+    email: string,
+    option = {}
+  ): Promise<ManagerModel | null> {
+    return new Promise((resolve, reject) => {
+      this.getAllByFieldNameAndValue("email", [email], undefined)
+        .then((result) => {
+          if (result.length === 0) {
+            return resolve(null);
+          }
+
+          resolve(result[0]);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 }

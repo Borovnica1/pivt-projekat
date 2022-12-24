@@ -14,6 +14,10 @@ import UserModel from "./UserModel.model";
 import * as nodemailer from "nodemailer";
 import * as Mailer from "nodemailer/lib/mailer";
 import { DevConfig } from "../../configs";
+import {
+  IPasswordResetDto,
+  PasswordResetValidator,
+} from "./dto/IPasswordReset.dto";
 
 class UserController extends BaseController {
   getAll(req: Request, res: Response) {
@@ -97,24 +101,7 @@ class UserController extends BaseController {
 
   private async sendRegistrationEmail(user: UserModel): Promise<UserModel> {
     return new Promise((resolve, reject) => {
-      const transport = nodemailer.createTransport(
-        {
-          host: DevConfig.mail.host,
-          port: DevConfig.mail.port,
-          secure: false,
-          tls: {
-            ciphers: "SSLv3",
-          },
-          debug: DevConfig.mail.debug,
-          auth: {
-            user: DevConfig.mail.email,
-            pass: DevConfig.mail.password,
-          },
-        },
-        {
-          from: DevConfig.mail.email,
-        }
-      );
+      const transport = this.getMailTransport();
 
       const mailOptions: Mailer.Options = {
         to: user.email,
@@ -152,6 +139,102 @@ class UserController extends BaseController {
             message: error?.message,
           });
         });
+    });
+  }
+
+  passwordReset(req: Request, res: Response) {
+    const data = req.body as IPasswordResetDto;
+
+    if (!PasswordResetValidator(data)) {
+      return res.status(400).send(PasswordResetValidator.errors);
+    }
+
+    this.services.user
+      .getByEmail(data.email, {
+        removeActivationCode: false,
+        removePassword: true,
+      })
+      .then((result) => {
+        if (result === null) {
+          throw {
+            status: 404,
+            message: "User not found!",
+          };
+        }
+
+        return result;
+      })
+      .then((user) => {
+        if (!user.isActive && !user.activationCode) {
+          throw {
+            status: 403,
+            message: "Your account has been deactivated by the administrator!",
+          };
+        }
+
+        return user;
+      })
+      .then((user) => {
+        const code = uuid.v4() + "-" + uuid.v4();
+        return this.services.user.edit(
+          user.userId,
+          {
+            password_reset_code: code,
+          },
+          {
+            removeActivationCode: true,
+            removePassword: true,
+          }
+        );
+      })
+      .then((user) => {
+        return this.sendRecoveryEmail(user);
+      })
+      .then(() => {
+        res.send({
+          message: "Sent",
+        });
+      })
+      .catch((error) => {
+        setTimeout(() => {
+          res.status(error?.status ?? 500).send(error?.message);
+        }, 500);
+      });
+  }
+
+  private async sendRecoveryEmail(user: UserModel): Promise<UserModel> {
+    return new Promise((resolve, reject) => {
+      const transport = this.getMailTransport();
+
+      const mailOptions: Mailer.Options = {
+        to: user.email,
+        subject: "Account password reset code",
+        html: `<!doctype html>
+                  <html>
+                    <head><meta charset="utf-8"></head>
+                    <body>
+                        <p>
+                            Dear ${user.forename} ${user.surname},<br>
+                            Here is a link you can use to reset your account:
+                        </p>
+                        <p>
+                            <a href="http://localhost:10000/api/user/reset/${user.passwordResetCode}"
+                                sryle="display: inline-block; padding: 10px 20px; color:#fff; background-color: #db0002; text-decoration: none;">
+                                  Click here to reset your account
+                            </a>
+                        </p>
+                    </body>
+                  </html>`,
+      };
+
+      transport.sendMail(mailOptions).then(() => {
+        transport.close();
+
+        user.activationCode = null;
+        user.passwordResetCode = null;
+
+        resolve(user);
+      });
     });
   }
 
@@ -238,24 +321,7 @@ class UserController extends BaseController {
 
   private async sendActivationEmail(user: UserModel): Promise<UserModel> {
     return new Promise((resolve, reject) => {
-      const transport = nodemailer.createTransport(
-        {
-          host: DevConfig.mail.host,
-          port: DevConfig.mail.port,
-          secure: false,
-          tls: {
-            ciphers: "SSLv3",
-          },
-          debug: DevConfig.mail.debug,
-          auth: {
-            user: DevConfig.mail.email,
-            pass: DevConfig.mail.password,
-          },
-        },
-        {
-          from: DevConfig.mail.email,
-        }
-      );
+      const transport = this.getMailTransport();
 
       const mailOptions: Mailer.Options = {
         to: user.email,
@@ -281,6 +347,7 @@ class UserController extends BaseController {
           transport.close();
 
           user.activationCode = null;
+          user.passwordResetCode = null;
 
           resolve(user);
         })
@@ -292,6 +359,27 @@ class UserController extends BaseController {
           });
         });
     });
+  }
+
+  private getMailTransport() {
+    return nodemailer.createTransport(
+      {
+        host: DevConfig.mail.host,
+        port: DevConfig.mail.port,
+        secure: false,
+        tls: {
+          ciphers: "SSLv3",
+        },
+        debug: DevConfig.mail.debug,
+        auth: {
+          user: DevConfig.mail.email,
+          pass: DevConfig.mail.password,
+        },
+      },
+      {
+        from: DevConfig.mail.email,
+      }
+    );
   }
 }
 
