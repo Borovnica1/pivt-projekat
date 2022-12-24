@@ -10,7 +10,7 @@ import { IEditLocationServiceDto } from "./dto/IEditLocation.dto";
 export default class LocationController extends BaseController {
   getAll(req: Request, res: Response) {
     this.services.location
-      .getAll(undefined)
+      .getAll({loadRestaurants: true})
       .then((result) => {
         res.send(result);
       })

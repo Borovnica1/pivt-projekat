@@ -37,7 +37,7 @@ export default class WorkingHoursService extends BaseService<
   public async getWokringHoursByRestaurantId(
     restaurantId: number
   ): Promise<WorkingHoursModel[]> {
-    return this.getAllByFieldNameAndValue("restaurant_id", restaurantId, {});
+    return this.getAllByFieldNameAndValue("restaurant_id", [restaurantId], {});
   }
 
   public async editById(

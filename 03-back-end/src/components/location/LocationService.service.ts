@@ -35,7 +35,7 @@ class LocationService extends BaseService<
       location.restaurants =
         await this.services.restaurant.getAllByFieldNameAndValue(
           "location_id",
-          +data?.location_id,
+          [+data?.location_id],
           {}
         );
     }

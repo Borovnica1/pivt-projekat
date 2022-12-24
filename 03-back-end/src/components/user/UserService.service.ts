@@ -66,7 +66,7 @@ export default class UserService extends BaseService<
     options: UserAdapterOptions = DefaultUserAdapterOptions
   ): Promise<UserModel> {
     return new Promise((resolve, reject) => {
-      this.getAllByFieldNameAndValue("activation_code", code, options)
+      this.getAllByFieldNameAndValue("activation_code", [code], options)
         .then((result) => {
           if (result.length === 0) {
             return resolve(null);
@@ -85,7 +85,7 @@ export default class UserService extends BaseService<
     option: UserAdapterOptions = DefaultUserAdapterOptions
   ): Promise<UserModel | null> {
     return new Promise((resolve, reject) => {
-      this.getAllByFieldNameAndValue("email", email, undefined)
+      this.getAllByFieldNameAndValue("email", [email], undefined)
         .then((result) => {
           if (result.length === 0) {
             return resolve(null);

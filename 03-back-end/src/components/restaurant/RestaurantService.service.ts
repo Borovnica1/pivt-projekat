@@ -36,9 +36,10 @@ class RestaurantService extends BaseService<
     }
 
     if (options.loadWorkingHours) {
-      const restaurantWorkingHours = await this.services.workingHours.getWokringHoursByRestaurantId(
-        restaurant.restaurantId
-      );
+      const restaurantWorkingHours =
+        await this.services.workingHours.getWokringHoursByRestaurantId(
+          restaurant.restaurantId
+        );
       restaurant.workingHours = restaurantWorkingHours;
     }
 
@@ -88,7 +89,7 @@ class RestaurantService extends BaseService<
     locationId: number,
     options: IRestaurantOptions
   ): Promise<RestaurantModel[]> {
-    return this.getAllByFieldNameAndValue("location_id", locationId, options);
+    return this.getAllByFieldNameAndValue("location_id", [locationId], options);
   }
 
   public async add(data: IAddRestaurantServiceDto): Promise<RestaurantModel> {
@@ -189,6 +190,41 @@ class RestaurantService extends BaseService<
             managerId: +rows[0]?.manager_id,
             restaurantId: +rows[0]?.restaurant_id,
           });
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  public async getRestaurantsByManagerId(
+    managerId: number
+  ): Promise<RestaurantManagerModel[]> {
+    return new Promise((resolve, reject) => {
+      const sql = "SELECT * FROM restaurant_manager WHERE manager_id = ?";
+
+      this.db
+        .execute(sql, [managerId])
+        .then(([rows]) => {
+          const restaurants = [];
+
+          for (const row of rows as any[]) {
+            restaurants.push({
+              restaurantManagerId: +row?.restaurant_manager_id,
+              managerId: +row?.manager_id,
+              restaurantId: +row?.restaurant_id,
+            });
+          }
+
+          if (rows === undefined) {
+            return resolve(null);
+          }
+
+          if (Array.isArray(rows) && rows.length === 0) {
+            return resolve(null);
+          }
+
+          resolve(restaurants);
         })
         .catch((error) => {
           reject(error);

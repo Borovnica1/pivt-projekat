@@ -13,7 +13,10 @@ export default class ReservationRouter implements IRouter {
 
     application.get(
       "/api/reservation",
-      reservationController.getAll.bind(reservationController)
+      AuthMiddleware.getVerifier("manager", "user"),
+      reservationController.getAllReservationsByManagerOrUserId.bind(
+        reservationController
+      )
     );
 
     application.get(

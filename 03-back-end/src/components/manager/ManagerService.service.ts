@@ -49,7 +49,7 @@ export default class ManagerService extends BaseService<
 
   public async getByUsername(username: string): Promise<ManagerModel | null> {
     return new Promise((resolve, reject) => {
-      this.getAllByFieldNameAndValue("username", username, undefined).then(result => {
+      this.getAllByFieldNameAndValue("username", [username], undefined).then(result => {
         if (result.length === 0) {
           return resolve(null);
         }

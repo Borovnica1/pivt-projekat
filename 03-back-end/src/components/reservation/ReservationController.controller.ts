@@ -9,17 +9,53 @@ import {
   IEditReservation,
   IEditReservationDto,
 } from "./dto/IEditReservation.dto";
+import { RestaurantManagerModel } from "../restaurant/RestaurantModel.model";
 
 export default class ReservationController extends BaseController {
-  getAll(req: Request, res: Response) {
-    this.services.reservation
-      .getAll({})
-      .then((result) => {
-        res.send(result);
-      })
-      .catch((error) => {
-        res.send(error);
-      });
+  async getAllReservationsByManagerOrUserId(req: Request, res: Response) {
+    const managerUserId = +req.authorisation.id;
+
+    try {
+      if (req.authorisation.role === "manager") {
+        const restaurantsOwnedByManager =
+          await this.services.restaurant.getRestaurantsByManagerId(
+            managerUserId
+          );
+        const resturantIds = restaurantsOwnedByManager.map(
+          (restaurant) => restaurant.restaurantId
+        );
+
+        const tablesOfAllManagersRestaurants =
+          await this.services.table.getAllByFieldNameAndValue(
+            "restaurant_id",
+            resturantIds,
+            {}
+          );
+        const tableIds = tablesOfAllManagersRestaurants.map(
+          (table) => table.tableId
+        ); 
+
+        const allReservationsOfManagersTables =
+          await this.services.reservation.getAllByFieldNameAndValue(
+            "table_id",
+            tableIds,
+            {}
+          );
+
+        res.send(allReservationsOfManagersTables);
+      } else {
+        const reservations =
+          await this.services.reservation.getAllByFieldNameAndValue(
+            "user_id",
+            [managerUserId],
+            {}
+          );
+
+        res.send(reservations);
+      }
+    } catch (error) {
+      res.send(error);
+    }
   }
 
   getById(req: Request, res: Response) {
