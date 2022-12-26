@@ -118,7 +118,7 @@ export default class AuthController extends BaseController {
         if (!bcrypt.compareSync(data.password, user.passwordHash)) {
           throw {
             status: 404,
-            message: "User account not found!",
+            message: "Wrong password.",
           };
         }
 
