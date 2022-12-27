@@ -7,7 +7,7 @@ import { MailConfigurationParameters } from "./config.mail";
 import AuthRouter from "./components/auth/AuthRouter.router";
 import { readFileSync } from "fs";
 import { LocationRouter } from "./components/location/LocationRouter.router";
-import ReservationRouter from './components/reservation/ReservationRouter.router';
+import ReservationRouter from "./components/reservation/ReservationRouter.router";
 
 const DevConfig: IConfig = {
   server: {
@@ -129,6 +129,7 @@ const DevConfig: IConfig = {
         },
       },
     },
+    allowAllRoutesWithoutAuthToken: true,
   },
 };
 

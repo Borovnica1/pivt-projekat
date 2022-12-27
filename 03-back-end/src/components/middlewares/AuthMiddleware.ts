@@ -18,6 +18,10 @@ export default class AuthMiddleware {
     next: NextFunction,
     allowedRoles: ("user" | "manager" | "administrator")[]
   ) {
+    if (DevConfig.auth.allowAllRoutesWithoutAuthToken) {
+      return next();
+    }
+
     const tokenHeader: string = req.headers?.authorization ?? ""; // "Bearer TOKEN"
 
     try {

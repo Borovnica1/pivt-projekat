@@ -89,9 +89,10 @@ interface IConfig {
   };
   mail: IMailConfiguration;
   auth: {
-    user: IAuthTokenOptions,
-    manager: IAuthTokenOptions
-  }
+    user: IAuthTokenOptions;
+    manager: IAuthTokenOptions;
+    allowAllRoutesWithoutAuthToken: boolean;
+  };
 }
 
 export { IConfig };
