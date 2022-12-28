@@ -45,7 +45,7 @@ export default class LocationController extends BaseController {
   getAllRestaurants(req, res) {
     const locationId = +req.params.lId;
     this.services.restaurant
-      .getAllByLocationId(locationId, { loadPhotos: true })
+      .getAllByLocationId(locationId, { loadPhotos: true, loadWorkingHours: true })
       .then((result) => {
         res.send(result);
       });
