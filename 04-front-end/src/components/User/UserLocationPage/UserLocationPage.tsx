@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { api } from "../../../api/api";
 import ILocation from "../../../models/ILocation.model";
 import IRestaurant from "../../../models/IRestaurant.model";
 import RestaurantPreview from "../Restaurant/RestaurantPreview";
@@ -20,19 +21,29 @@ export default function UserLocationPage() {
   useEffect(() => {
     setLoading(true);
 
-    fetch("http://localhost:10000/api/location/" + params.id)
-      .then((res) => res.json())
-      .then((data) => {
-        setLocations(data);
+    api("get", "http://localhost:10000/api/location/" + params.id, "user")
+      .then((res) => {
+        if (res.status === "error") {
+          throw {
+            message: "Could not get location data!",
+          };
+        }
+        setLocations(res.data);
       })
       .then(() => {
-        return fetch(
-          "http://localhost:10000/api/location/" + params.id + "/restaurant"
+        return api(
+          "get",
+          "http://localhost:10000/api/location/" + params.id + "/restaurant",
+          "user"
         );
       })
-      .then((res) => res.json())
-      .then((data) => {
-        setRestaurants(data);
+      .then((res) => {
+        if (res.status === "error") {
+          throw {
+            message: "Could not get restaurant data!",
+          };
+        }
+        setRestaurants(res.data);
       })
       .catch((error) => {
         setErrorMessage(

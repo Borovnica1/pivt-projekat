@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { api } from "../../../api/api";
 import ILocation from "../../../models/ILocation.model";
 
 export default function UserLocationList() {
@@ -7,10 +8,15 @@ export default function UserLocationList() {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
-    fetch("http://localhost:10000/api/location")
-      .then((res) => res.json())
-      .then((data) => {
-        setLocations(data);
+    api("get", "http://localhost:10000/api/location", "user")
+      .then((apiResponse) => {
+        if (apiResponse.status === "ok") {
+          return setLocations(apiResponse.data);
+        }
+
+        throw {
+          message: "Unknown error while loading locations...",
+        };
       })
       .catch((error) => {
         setErrorMessage(
