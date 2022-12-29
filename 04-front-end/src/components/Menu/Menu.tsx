@@ -31,6 +31,10 @@ export default function Menu() {
             <Link className="nav-item nav-link" to="/auth/user/login">
               User login
             </Link>
+
+            <Link className="nav-item nav-link" to="/admin/dashboard">
+              Admin dashboard
+            </Link>
           </div>
         </div>
       </nav>
