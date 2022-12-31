@@ -91,6 +91,13 @@ function handleApiError(
       data: "Wrong role!",
     });
   }
+
+  if (err?.response?.status === 400) {
+    return resolve({
+      status: "error",
+      data: "Restaurant with that name already exists!",
+    });
+  }
 }
 
 function handleApiResponse(
