@@ -49,3 +49,8 @@ Aplikacija treba da omogući menadžerima restorana da se registruju i da dodaju
 - Listanje svih slobodnih stolova
 - Pravljenje rezervacije
 
+**Administrator**
+
+- Prikaz svih lokacija
+- Dodavanje lokacije
+- Izmena lokacije

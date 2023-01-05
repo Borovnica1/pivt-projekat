@@ -8,6 +8,7 @@ import UserLocationList from "../User/UserLocationList/UserLocationList";
 import UserLoginPage from "../User/UserLoginPage/UserLoginPage";
 import AdminDashboard from "../Administrator/Dashboard/AdminDashboard";
 import AdminLocationList from "../Administrator/Dashboard/AdminLocationList";
+import AdminLocationAdd from "../Administrator/Dashboard/AdminLocationAdd";
 
 function Application() {
   return (
@@ -25,6 +26,10 @@ function Application() {
           <Route
             path="/admin/dashboard/location/list"
             element={<AdminLocationList />}
+          />
+          <Route
+            path="/admin/dashboard/location/add"
+            element={<AdminLocationAdd />}
           />
         </Routes>
       </BrowserRouter>

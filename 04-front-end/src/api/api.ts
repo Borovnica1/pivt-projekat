@@ -29,7 +29,7 @@ export function api(
       method: method,
       baseURL: "http://localhost:10000",
       url: path,
-      data: data ? JSON.stringify(data) : "",
+      data: data ? JSON.stringify(data) : undefined,
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + "TOKEN WILL GO HERE LATER",
@@ -95,7 +95,7 @@ function handleApiError(
   if (err?.response?.status === 400) {
     return resolve({
       status: "error",
-      data: "Restaurant with that name already exists!",
+      data: err?.response.statusText,
     });
   }
 }
