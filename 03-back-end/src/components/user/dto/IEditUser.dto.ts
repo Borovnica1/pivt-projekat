@@ -42,6 +42,9 @@ const EditUserValidator = ajv.compile({
       minLength: 2,
       maxLength: 64,
     },
+    isActive: {
+      type: "boolean"
+    }
   },
   required: [],
   additionalProperties: false,

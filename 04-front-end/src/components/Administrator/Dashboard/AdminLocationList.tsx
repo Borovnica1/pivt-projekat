@@ -112,6 +112,7 @@ export default function AdminLocationList() {
         </Alert>
       )}
       <div>
+        <h3>Locations:</h3>
         <button
           className="btn btn-primary my-3"
           onClick={() => setShowAddNewLocation(true)}

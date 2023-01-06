@@ -1,5 +1,5 @@
 export default interface IManager {
-  managerId: string;
+  managerId: number;
   username: string;
-  isActive: number
+  isActive: number;
 }

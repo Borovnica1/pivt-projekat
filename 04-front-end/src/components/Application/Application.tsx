@@ -10,6 +10,7 @@ import AdminDashboard from "../Administrator/Dashboard/AdminDashboard";
 import AdminLocationList from "../Administrator/Dashboard/AdminLocationList";
 import AdminLocationAdd from "../Administrator/Dashboard/AdminLocationAdd";
 import AdminManagerList from "../Administrator/Dashboard/AdminManagersList";
+import AdminUserList from "../Administrator/Dashboard/AdminUserList";
 
 function Application() {
   return (
@@ -36,6 +37,10 @@ function Application() {
           <Route
             path="/admin/dashboard/manager/list"
             element={<AdminManagerList />}
+          />
+          <Route
+            path="/admin/dashboard/user/list"
+            element={<AdminUserList />}
           />
         </Routes>
       </BrowserRouter>

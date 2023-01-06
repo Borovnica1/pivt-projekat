@@ -99,6 +99,7 @@ export default function AdminManagerList() {
         </Alert>
       )}
       <div>
+        <h3>Restaurant Managers:</h3>
         <table className="table table-bordered table-striped table-hover table-sm mt-3">
           <thead>
             <tr>
