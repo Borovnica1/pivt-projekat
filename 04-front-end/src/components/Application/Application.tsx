@@ -23,7 +23,6 @@ function Application() {
           <Route path="/auth/user/login" element={<UserLoginPage />} />
           <Route path="/locations" element={<UserLocationList />} />
           <Route path="/location/:id" element={<UserLocationPage />} />
-
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route
             path="/admin/dashboard/location/list"
@@ -33,7 +32,6 @@ function Application() {
             path="/admin/dashboard/location/add"
             element={<AdminLocationAdd />}
           />
-
           <Route
             path="/admin/dashboard/manager/list"
             element={<AdminManagerList />}

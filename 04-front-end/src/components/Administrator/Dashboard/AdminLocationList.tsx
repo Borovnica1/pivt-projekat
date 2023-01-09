@@ -71,11 +71,7 @@ export default function AdminLocationList() {
         <td>
           <Link
             className="btn btn-primary btn-sm"
-            to={
-              "/admin/dashboard/category/" +
-              props.location.locationId +
-              "/restaurants"
-            }
+            to={"/location/" + props.location.locationId}
           >
             List restaurants
           </Link>
@@ -150,7 +146,6 @@ export default function AdminLocationList() {
 
 function AdminLocationAddRow(props: IAdminLocationAddRowProps) {
   const [locationName, setLocationName] = useState<string>("");
-
 
   const nameChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocationName(e.target.value);
