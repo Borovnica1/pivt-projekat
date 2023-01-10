@@ -125,6 +125,16 @@ export default class AuthController extends BaseController {
         return user;
       })
       .then((user) => {
+        if (!user.isActive) {
+          throw {
+            status: 404,
+            message: "User account is not active!",
+          };
+        }
+
+        return user;
+      })
+      .then((user) => {
         const tokenData: ITokenData = {
           role: "user",
           id: user.userId,
@@ -154,6 +164,9 @@ export default class AuthController extends BaseController {
         res.send({
           authToken: authToken,
           refreshToken: refreshToken,
+          id: user.userId,
+          firstName: user.forename,
+          lastName: user.surname
         });
       })
       .catch((error) => {

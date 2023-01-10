@@ -104,6 +104,8 @@ function handleApiResponse(
   res: AxiosResponse<any, any>,
   resolve: (value: IApiResponse | PromiseLike<IApiResponse>) => void
 ) {
+  console.log("handleApiResponse", res);
+  
   if (res?.status < 200 || res?.status >= 300) {
     return resolve({
       status: "error",

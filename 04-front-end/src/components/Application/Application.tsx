@@ -11,38 +11,45 @@ import AdminLocationList from "../Administrator/Dashboard/AdminLocationList";
 import AdminLocationAdd from "../Administrator/Dashboard/AdminLocationAdd";
 import AdminManagerList from "../Administrator/Dashboard/AdminManagersList";
 import AdminUserList from "../Administrator/Dashboard/AdminUserList";
+import { Provider } from "react-redux";
+import AuthStore from "../../stores/AuthStore";
+import UserRegisterPage from "../User/UserRegisterPage/UserRegisterPage";
 
 function Application() {
   return (
-    <Container className="mt-4">
-      <BrowserRouter>
-        <Menu />
-        <Routes>
-          <Route path="/" element={<p>home page</p>}></Route>
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/auth/user/login" element={<UserLoginPage />} />
-          <Route path="/locations" element={<UserLocationList />} />
-          <Route path="/location/:id" element={<UserLocationPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route
-            path="/admin/dashboard/location/list"
-            element={<AdminLocationList />}
-          />
-          <Route
-            path="/admin/dashboard/location/add"
-            element={<AdminLocationAdd />}
-          />
-          <Route
-            path="/admin/dashboard/manager/list"
-            element={<AdminManagerList />}
-          />
-          <Route
-            path="/admin/dashboard/user/list"
-            element={<AdminUserList />}
-          />
-        </Routes>
-      </BrowserRouter>
-    </Container>
+    <Provider store={AuthStore}>
+      <Container className="mt-4">
+        <BrowserRouter>
+          <Menu />
+          <Routes>
+            <Route path="/" element={<p>home page</p>}></Route>
+
+            <Route path='/auth/user/register' element={ <UserRegisterPage /> } />
+            <Route path="/auth/user/login" element={<UserLoginPage />} />
+
+            <Route path="/locations" element={<UserLocationList />} />
+            <Route path="/location/:id" element={<UserLocationPage />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route
+              path="/admin/dashboard/location/list"
+              element={<AdminLocationList />}
+            />
+            <Route
+              path="/admin/dashboard/location/add"
+              element={<AdminLocationAdd />}
+            />
+            <Route
+              path="/admin/dashboard/manager/list"
+              element={<AdminManagerList />}
+            />
+            <Route
+              path="/admin/dashboard/user/list"
+              element={<AdminUserList />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </Container>
+    </Provider>
   );
 }
 
