@@ -29,6 +29,7 @@ export default class ManagerService extends BaseService<
 
     manager.managerId = +data?.manager_id;
     manager.username = data.username;
+    manager.email = data.email;
     manager.passwordHash = data?.password_hash;
     manager.createdAt = data?.created_at;
     manager.isActive = +data?.is_active === 1;

@@ -12,12 +12,12 @@ class UserRouter implements IRouter {
     const userController = new UserController(resources.services);
     application.get(
       "/api/user",
-      AuthMiddleware.getVerifier("manager"),
+      AuthMiddleware.getVerifier("administrator"),
       userController.getAll.bind(userController)
     );
     application.get(
       "/api/user/:uId",
-      AuthMiddleware.getVerifier("manager", "user"),
+      AuthMiddleware.getVerifier("administrator", "user"),
       userController.getById.bind(userController)
     );
     application.post(
@@ -26,7 +26,7 @@ class UserRouter implements IRouter {
     );
     application.put(
       "/api/user/:uId",
-      AuthMiddleware.getVerifier("manager", "user"),
+      AuthMiddleware.getVerifier("administrator", "user"),
       userController.editById.bind(userController)
     );
     application.get(

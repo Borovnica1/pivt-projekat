@@ -19,6 +19,13 @@ export default class ManagerController extends BaseController {
 
   getById(req: Request, res: Response) {
     const id: number = +req.params?.mId;
+
+    if (req.authorisation?.role === "manager") {
+      if (req.authorisation?.id !== id) {
+        return res.status(403).send("You do not have access to this resource!");
+      }
+    }
+
     this.services.manager
       .baseGetById(id, { removePassword: true })
       .then((result) => {

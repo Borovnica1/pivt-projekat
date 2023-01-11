@@ -13,20 +13,22 @@ export default class ManagerRouter implements IRouter {
       resources.services
     );
     application.get(
-      "/api/manager", AuthMiddleware.getVerifier('manager'),
+      "/api/manager",
+      AuthMiddleware.getVerifier("administrator"),
       managerController.getAll.bind(managerController)
     );
     application.get(
-      "/api/manager/:mId", AuthMiddleware.getVerifier('manager'),
+      "/api/manager/:mId",
+      AuthMiddleware.getVerifier("administrator", "manager"),
       managerController.getById.bind(managerController)
     );
     application.post(
-      "/api/manager",
+      "/api/manager/register",
       managerController.add.bind(managerController)
     );
     application.put(
       "/api/manager/:mId",
-      AuthMiddleware.getVerifier("manager"),
+      AuthMiddleware.getVerifier("administrator"),
       managerController.edit.bind(managerController)
     );
   }

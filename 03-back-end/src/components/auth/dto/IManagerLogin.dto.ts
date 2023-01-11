@@ -3,23 +3,23 @@ import Ajv from "ajv";
 const ajv = new Ajv();
 
 export interface IManagerLoginDto {
-  username: string;
+  email: string;
   password: string;
 }
 
 const ManagerLoginValidator = ajv.compile({
   type: "object",
   properties: {
-    username: {
+    email: {
       type: "string",
-      pattern: "^[a-z-]{5,64}$",
+      format: "email",
     },
     password: {
       type: "string",
       pattern: "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{6,}$",
     },
   },
-  required: ["username", "password"],
+  required: ["email", "password"],
   additionalProperties: false,
 });
 

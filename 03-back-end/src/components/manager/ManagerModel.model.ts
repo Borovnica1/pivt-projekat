@@ -3,6 +3,7 @@ import IModel from "../../common/IModel.interface";
 export default class ManagerModel implements IModel {
   managerId: number;
   username: string;
+  email: string;
   passwordHash?: string;
   createdAt: string;
   isActive: boolean;

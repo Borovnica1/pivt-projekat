@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 export type TApiMethod = "get" | "post" | "put" | "delete";
-export type TApiRole = "user" | "administrator";
+export type TApiRole = "user" | "manager" | "administrator";
 export type TApiResponse = "ok" | "error" | "login";
 
 export interface IApiResponse {
@@ -98,6 +98,13 @@ function handleApiError(
       data: err?.response.statusText,
     });
   }
+
+  if (err?.response?.status === 404) {
+    return resolve({
+      status: "error",
+      data: err?.response.statusText,
+    });
+  }
 }
 
 function handleApiResponse(
@@ -105,7 +112,7 @@ function handleApiResponse(
   resolve: (value: IApiResponse | PromiseLike<IApiResponse>) => void
 ) {
   console.log("handleApiResponse", res);
-  
+
   if (res?.status < 200 || res?.status >= 300) {
     return resolve({
       status: "error",
