@@ -16,11 +16,11 @@ export default function Menu() {
   });
 
   return (
-    <>
+    <div style={{marginBottom: "10px"}}>
       {role === "visitor" && <MenuVisitor />}
       {role === "user" && <MenuUser />}
       {role === "manager" && <MenuManager />}
       {role === "administrator" && <MenuAdministrator />}
-    </>
+    </div>
   );
 }

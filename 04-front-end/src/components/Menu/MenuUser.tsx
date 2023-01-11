@@ -11,7 +11,7 @@ export default function MenuUser() {
   
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
-      <Link className="navbar-brand" to="/">
+      <Link className="navbar-brand" to="/profile">
         Hi, {AuthStore.getState().identity}
       </Link>
 

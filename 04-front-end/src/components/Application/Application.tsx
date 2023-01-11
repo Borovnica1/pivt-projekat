@@ -3,8 +3,6 @@ import { Container } from "react-bootstrap";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Menu from "../Menu/Menu";
 import UserLocationPage from "../User/UserLocationPage/UserLocationPage";
-import ContactPage from "../Pages/ContactPage/ContactPage";
-import UserLocationList from "../User/UserLocationList/UserLocationList";
 import UserLoginPage from "../User/UserLoginPage/UserLoginPage";
 import AdminDashboard from "../Administrator/Dashboard/AdminDashboard";
 import AdminLocationList from "../Administrator/Dashboard/AdminLocationList";
@@ -17,6 +15,7 @@ import UserRegisterPage from "../User/UserRegisterPage/UserRegisterPage";
 import AdministratorLoginPage from "../Administrator/AdministratorLoginPage/AdministratorLoginPage";
 import ManagerLoginPage from "../Manager/ManagerLoginPage/ManagerLoginPage";
 import ManagerRegisterPage from "../Manager/ManagerRegisterPage/ManagerRegisterPage";
+import { Locations } from '../Pages/Locations/Locations';
 
 function Application() {
   return (
@@ -41,7 +40,8 @@ function Application() {
               element={<AdministratorLoginPage />}
             />
 
-            <Route path="/locations" element={<UserLocationList />} />
+            <Route path="/locations" element={<Locations />} />
+            
             <Route path="/location/:id" element={<UserLocationPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route
