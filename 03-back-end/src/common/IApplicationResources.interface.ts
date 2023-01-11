@@ -9,6 +9,7 @@ import AddressService from "../components/restaurant/AddressService.service";
 import DayOffService from "../components/restaurant/DayOffService.service copy";
 import TableService from '../components/restaurant/TableService.service';
 import ReservationService from '../components/reservation/ReservationService.service';
+import AdministratorService from "../components/administrator/AdministratorService.service";
 
 export default interface IApplicationResources {
   databaseConnection: mysql2.Connection;
@@ -26,4 +27,5 @@ export interface IServices {
   dayOff: DayOffService;
   table: TableService;
   reservation: ReservationService;
+  administrator: AdministratorService;
 }

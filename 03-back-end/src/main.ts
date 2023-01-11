@@ -25,6 +25,7 @@ import fileUpload = require("express-fileupload");
 import DayOffService from "./components/restaurant/DayOffService.service copy";
 import TableService from './components/restaurant/TableService.service';
 import ReservationService from './components/reservation/ReservationService.service';
+import AdministratorService from "./components/administrator/AdministratorService.service";
 
 async function main() {
   const config: IConfig = DevConfig;
@@ -58,6 +59,7 @@ async function main() {
       dayOff: null,
       table: null,
       reservation: null,
+      administrator: null,
     },
   };
 
@@ -101,6 +103,10 @@ async function main() {
     db,
     applicationResources.services
   );
+    applicationResources.services.administrator = new AdministratorService(
+      db,
+      applicationResources.services
+    );
 
   const application: express.Application = express();
 

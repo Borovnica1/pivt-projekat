@@ -14,6 +14,7 @@ import AdminUserList from "../Administrator/Dashboard/AdminUserList";
 import { Provider } from "react-redux";
 import AuthStore from "../../stores/AuthStore";
 import UserRegisterPage from "../User/UserRegisterPage/UserRegisterPage";
+import AdministratorLoginPage from "../Administrator/AdministratorLoginPage/AdministratorLoginPage";
 
 function Application() {
   return (
@@ -24,8 +25,13 @@ function Application() {
           <Routes>
             <Route path="/" element={<p>home page</p>}></Route>
 
-            <Route path='/auth/user/register' element={ <UserRegisterPage /> } />
+            <Route path="/auth/user/register" element={<UserRegisterPage />} />
             <Route path="/auth/user/login" element={<UserLoginPage />} />
+
+            <Route
+              path="/auth/administrator/login"
+              element={<AdministratorLoginPage />}
+            />
 
             <Route path="/locations" element={<UserLocationList />} />
             <Route path="/location/:id" element={<UserLocationPage />} />
