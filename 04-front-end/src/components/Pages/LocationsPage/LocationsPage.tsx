@@ -11,11 +11,14 @@ import { Link } from "react-router-dom";
 import { api } from "../../../api/api";
 import ILocation from "../../../models/ILocation.model";
 
-export function Locations() {
+export function LocationsPage() {
   const [locations, setLocations] = useState<ILocation[]>([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    setLoading(true);
+
     api("get", "/api/location", "user")
       .then((res) => {
         if (res.status === "ok") {
@@ -26,11 +29,13 @@ export function Locations() {
       })
       .catch((res) => {
         setError(res.data);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <>
+      {loading && <p>Loading...</p>}
       {error && <p className="alert alert-danger">{error}</p>}
 
       <Container>
@@ -49,7 +54,7 @@ export function Locations() {
               >
                 <Col xs={12} sm={6} md={4} lg={3}>
                   <Link
-                    to={"/restaurant/" + location.locationId}
+                    to={"/location/" + location.locationId + "/restaurants"}
                     style={{
                       textDecoration: "none",
                       whiteSpace: "nowrap",

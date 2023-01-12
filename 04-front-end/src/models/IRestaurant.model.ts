@@ -1,3 +1,4 @@
+import IPhoto from "./IPhoto.model";
 import WorkingHours from "./IWorkingHours.model";
 
 interface IRestaurant {
@@ -5,7 +6,7 @@ interface IRestaurant {
   name: string;
   description: string;
 
-  photos?: any[];
+  photos?: IPhoto[];
   workingHours: WorkingHours[];
 }
 

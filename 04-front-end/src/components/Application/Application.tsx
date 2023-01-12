@@ -15,7 +15,8 @@ import UserRegisterPage from "../User/UserRegisterPage/UserRegisterPage";
 import AdministratorLoginPage from "../Administrator/AdministratorLoginPage/AdministratorLoginPage";
 import ManagerLoginPage from "../Manager/ManagerLoginPage/ManagerLoginPage";
 import ManagerRegisterPage from "../Manager/ManagerRegisterPage/ManagerRegisterPage";
-import { Locations } from '../Pages/Locations/Locations';
+import { LocationsPage } from '../Pages/LocationsPage/LocationsPage';
+import { RestaurantsPage } from "../Pages/RestaurantsPage/RestaurantsPage";
 
 function Application() {
   return (
@@ -25,24 +26,25 @@ function Application() {
           <Menu />
           <Routes>
             <Route path="/" element={<p>home page</p>}></Route>
-
             <Route path="/auth/user/register" element={<UserRegisterPage />} />
             <Route path="/auth/user/login" element={<UserLoginPage />} />
-
             <Route
               path="auth/manager/register"
               element={<ManagerRegisterPage />}
             />
             <Route path="auth/manager/login" element={<ManagerLoginPage />} />
-
             <Route
               path="/auth/administrator/login"
               element={<AdministratorLoginPage />}
             />
-
-            <Route path="/locations" element={<Locations />} />
-            
+            <Route path="/locations" element={<LocationsPage />} />
             <Route path="/location/:id" element={<UserLocationPage />} />
+            <Route
+              path="/location/:lid/restaurants"
+              element={<RestaurantsPage />}
+            />
+            
+
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route
               path="/admin/dashboard/location/list"

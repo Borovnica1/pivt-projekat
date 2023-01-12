@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import myConfig from "../config";
 
 export type TApiMethod = "get" | "post" | "put" | "delete";
 export type TApiRole = "user" | "manager" | "administrator";
@@ -27,7 +28,7 @@ export function api(
   return new Promise((resolve) => {
     axios({
       method: method,
-      baseURL: "http://localhost:10000",
+      baseURL: myConfig.apiBaseUrl,
       url: path,
       data: data ? JSON.stringify(data) : undefined,
       headers: {
