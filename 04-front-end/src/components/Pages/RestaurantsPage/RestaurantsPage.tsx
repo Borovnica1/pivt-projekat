@@ -1,14 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  Card,
-  Col,
-  Container,
-  OverlayTrigger,
-  Row,
-  Tooltip,
-} from "react-bootstrap";
+import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../../api/api";
 import IRestaurant from "../../../models/IRestaurant.model";
@@ -31,7 +22,6 @@ export function RestaurantsPage() {
       "user"
     )
       .then((res) => {
-        console.log("RestaurantsPage res.data: ", res.data);
         if (res.status === "ok") {
           setRestaurants(res.data);
         } else {
@@ -50,7 +40,6 @@ export function RestaurantsPage() {
       {error && <p className="alert alert-danger">{error}</p>}
 
       <Container>
-        {/* Stack the columns on mobile by making one full-width and the other half-width */}
         <Row>
           {restaurants.map((restaurant) => {
             const photoFilePath: string =
@@ -72,7 +61,12 @@ export function RestaurantsPage() {
                 style={{ marginBottom: "30px" }}
               >
                 <Link
-                  to={"/restaurant/" + restaurant.restaurantId}
+                  to={
+                    "/location/" +
+                    params.lid +
+                    "/restaurant/" +
+                    restaurant.restaurantId
+                  }
                   style={{
                     textDecoration: "none",
                     whiteSpace: "nowrap",
@@ -123,16 +117,8 @@ export function RestaurantsPage() {
                       >
                         {restaurant.description || "No description..."}
                       </Card.Text>
-                      <Link
-                        to={
-                          "/location/" +
-                          params.lid +
-                          "/restaurant/" +
-                          restaurant.restaurantId
-                        }
-                      >
-                        <Button variant="primary">Detaljnije</Button>
-                      </Link>
+
+                      <Button variant="primary">Detaljnije</Button>
                     </Card.Body>
                   </Card>
                 </Link>

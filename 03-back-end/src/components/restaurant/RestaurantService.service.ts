@@ -10,6 +10,9 @@ import IEditRestaurant from "./dto/IEditRestaurant.dto";
 class IRestaurantOptions implements IAdapterOptions {
   loadPhotos?: boolean;
   loadWorkingHours?: boolean;
+  loadAddresses?: boolean;
+  loadDaysOff?: boolean;
+  loadTables?: boolean;
 }
 class RestaurantService extends BaseService<
   RestaurantModel,
@@ -41,6 +44,34 @@ class RestaurantService extends BaseService<
           restaurant.restaurantId
         );
       restaurant.workingHours = restaurantWorkingHours;
+    }
+
+    if (options.loadAddresses) {
+      const restaurantAddresses =
+        await this.services.address.getAllByFieldNameAndValue(
+          "restaurant_id",
+          [restaurant.restaurantId],
+          {}
+        );
+      restaurant.addresses = restaurantAddresses;
+    }
+    if (options.loadDaysOff) {
+      const restaurantDaysOff =
+        await this.services.dayOff.getAllByFieldNameAndValue(
+          "restaurant_id",
+          [restaurant.restaurantId],
+          {}
+        );
+      restaurant.daysOff = restaurantDaysOff;
+    }
+    if (options.loadTables) {
+      const restaurantTables =
+        await this.services.table.getAllByFieldNameAndValue(
+          "restaurant_id",
+          [restaurant.restaurantId],
+          {}
+        );
+      restaurant.tables = restaurantTables;
     }
 
     return restaurant;

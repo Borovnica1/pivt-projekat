@@ -23,7 +23,7 @@ export default function RestaurantPreview(props: IRestaurantPreviewProperties) {
                 workingHoursDay.workingHoursId
               }
             >
-              {workingHoursDay.isClosed ? (
+              {workingHoursDay.open ? (
                 workingHoursDay.day + ": CLOSED! "
               ) : (
                 <span className="d-inline-block">

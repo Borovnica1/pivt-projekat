@@ -4,7 +4,7 @@ import IAdapterOptions from "../../common/IAdapterOptions.interface";
 import { IEditTable } from "./dto/IEditTable.dto";
 import IModel from "../../common/IModel.interface";
 
-class TableModel implements IModel {
+export class TableModel implements IModel {
   tableId: number;
   restaurantId: number;
 

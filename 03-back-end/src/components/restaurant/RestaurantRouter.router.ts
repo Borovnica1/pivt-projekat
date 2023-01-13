@@ -16,12 +16,10 @@ class RestaurantRouter implements IRouter {
 
     application.get(
       "/api/restaurant",
-      AuthMiddleware.getVerifier("manager", "user"),
       restaurantController.getAll.bind(restaurantController)
     );
     application.get(
       "/api/restaurant/:rId",
-      AuthMiddleware.getVerifier("manager", "user"),
       restaurantController.getById.bind(restaurantController)
     );
     application.put(

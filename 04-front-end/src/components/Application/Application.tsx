@@ -15,8 +15,9 @@ import UserRegisterPage from "../User/UserRegisterPage/UserRegisterPage";
 import AdministratorLoginPage from "../Administrator/AdministratorLoginPage/AdministratorLoginPage";
 import ManagerLoginPage from "../Manager/ManagerLoginPage/ManagerLoginPage";
 import ManagerRegisterPage from "../Manager/ManagerRegisterPage/ManagerRegisterPage";
-import { LocationsPage } from '../Pages/LocationsPage/LocationsPage';
+import { LocationsPage } from "../Pages/LocationsPage/LocationsPage";
 import { RestaurantsPage } from "../Pages/RestaurantsPage/RestaurantsPage";
+import { RestaurantPage } from "../Pages/RestaurantPage/RestaurantPage";
 
 function Application() {
   return (
@@ -25,7 +26,7 @@ function Application() {
         <BrowserRouter>
           <Menu />
           <Routes>
-            <Route path="/" element={<p>home page</p>}></Route>
+            <Route path="/" element={<LocationsPage />}></Route>
             <Route path="/auth/user/register" element={<UserRegisterPage />} />
             <Route path="/auth/user/login" element={<UserLoginPage />} />
             <Route
@@ -43,7 +44,10 @@ function Application() {
               path="/location/:lid/restaurants"
               element={<RestaurantsPage />}
             />
-            
+            <Route
+              path="/location/:lid/restaurant/:rid"
+              element={<RestaurantPage />}
+            />
 
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route

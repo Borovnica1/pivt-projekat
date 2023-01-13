@@ -4,7 +4,7 @@ import IModel from "../../common/IModel.interface";
 import { IEditDayOff } from './dto/IEditDayOff.dto';
 import { IAddDayOff } from './dto/IAddDayOff.dto';
 
-class DayOffModel implements IModel {
+export class DayOffModel implements IModel {
   dayOffId: number;
   restaurantId: number;
 

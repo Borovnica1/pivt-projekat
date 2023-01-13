@@ -11,9 +11,9 @@ enum DayInAWeek {
 export default interface IWorkingHours {
   workingHoursId: number;
   day: DayInAWeek;
+  open: number;
   openingHours: string;
   closingHours: string;
-  isClosed: string;
 }
 
 export { DayInAWeek };

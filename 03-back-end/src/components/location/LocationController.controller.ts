@@ -10,7 +10,7 @@ import { IEditLocationServiceDto } from "./dto/IEditLocation.dto";
 export default class LocationController extends BaseController {
   getAll(req: Request, res: Response) {
     this.services.location
-      .getAll({loadRestaurants: true})
+      .getAll({ loadRestaurants: true })
       .then((result) => {
         res.send(result);
       })
@@ -45,7 +45,10 @@ export default class LocationController extends BaseController {
   getAllRestaurants(req, res) {
     const locationId = +req.params.lId;
     this.services.restaurant
-      .getAllByLocationId(locationId, { loadPhotos: true, loadWorkingHours: true })
+      .getAllByLocationId(locationId, {
+        loadPhotos: true,
+        loadWorkingHours: true,
+      })
       .then((result) => {
         res.send(result);
       });
@@ -97,6 +100,7 @@ export default class LocationController extends BaseController {
             daysInAWeek.map((day) => {
               return this.services.workingHours.add({
                 day: day as DayInAWeek,
+                open: 0,
                 restaurant_id: result.restaurantId,
               });
             })

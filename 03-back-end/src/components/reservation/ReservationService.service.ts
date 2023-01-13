@@ -3,6 +3,7 @@ import ReservationModel from "./ReservationModel.model";
 import IAdapterOptions from "../../common/IAdapterOptions.interface";
 import { IAddReservation } from "./dto/IAddReservation.dto";
 import { IEditReservation } from "./dto/IEditReservation.dto";
+import * as mysql2 from "mysql2/promise";
 
 class IReservationDefaultOptions implements IAdapterOptions {}
 
@@ -40,11 +41,35 @@ export default class ReservationService extends BaseService<
     return this.baseAdd(data, {});
   }
 
-  edit(reservationId: number, data: IEditReservation): Promise<ReservationModel> {
+  edit(
+    reservationId: number,
+    data: IEditReservation
+  ): Promise<ReservationModel> {
     return this.baseEdit(reservationId, data, {});
   }
 
   delete(reservationId: number) {
     return this.baseDeleteById(reservationId);
+  }
+
+  getAllByTableIdAndDate(tableId, date, options): Promise<ReservationModel[]> {
+    return new Promise((resolve, reject) => {
+
+      const sql = `SELECT * FROM reservation WHERE reservation_date REGEXP(?) AND table_id = ?;`;
+      this.db
+        .execute(sql, [date, tableId])
+        .then(async ([rows]) => {
+          const items: ReservationModel[] = [];
+
+          for (const row of rows as mysql2.RowDataPacket[]) {
+            items.push(await this.adaptToModel(row, options));
+          }
+
+          resolve(items);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 }

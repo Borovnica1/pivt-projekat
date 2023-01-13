@@ -33,7 +33,7 @@ export default class ReservationController extends BaseController {
           );
         const tableIds = tablesOfAllManagersRestaurants.map(
           (table) => table.tableId
-        ); 
+        );
 
         const allReservationsOfManagersTables =
           await this.services.reservation.getAllByFieldNameAndValue(
@@ -63,6 +63,20 @@ export default class ReservationController extends BaseController {
 
     this.services.reservation
       .baseGetById(reservationId, {})
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        res.send(error);
+      });
+  }
+
+  getAllByTableIdAndDate(req: Request, res: Response) {
+    const tableId = +req.params?.tId;
+    const date = req.params?.date;
+
+    this.services.reservation
+      .getAllByTableIdAndDate(tableId, date, {})
       .then((result) => {
         res.send(result);
       })

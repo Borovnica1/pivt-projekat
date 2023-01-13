@@ -15,6 +15,7 @@ const daysInAWeek = [
 
 export default interface IAddWorkingHours {
   day: keyof typeof DayInAWeek;
+  open: number;
   opening_hours?: Date;
   closing_hours?: Date;
   restaurant_id: number;
@@ -22,6 +23,7 @@ export default interface IAddWorkingHours {
 
 interface IAddWorkingHoursServiceDto {
   day: keyof typeof DayInAWeek;
+  open: number;
   openingHours?: Date;
   closingHours?: Date;
 }

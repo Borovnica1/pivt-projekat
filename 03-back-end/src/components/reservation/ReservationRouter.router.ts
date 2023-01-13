@@ -23,6 +23,10 @@ export default class ReservationRouter implements IRouter {
       "/api/reservation/:rId",
       reservationController.getById.bind(reservationController)
     );
+    application.get(
+      "/api/table/:tId/reservation/:date",
+      reservationController.getAllByTableIdAndDate.bind(reservationController)
+    );
     application.post(
       "/api/restaurant/:rId/table/:tId/reservation",
       reservationController.add.bind(reservationController)

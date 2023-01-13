@@ -48,6 +48,7 @@ export default class WorkingHoursController extends BaseController {
     this.services.workingHours
       .add({
         day: body.day,
+        open: body.open,
         opening_hours: body.openingHours,
         closing_hours: body.closingHours,
         restaurant_id: restaurantId,
@@ -64,11 +65,15 @@ export default class WorkingHoursController extends BaseController {
     const workingHoursId: number = +req.params?.whId;
     const body = req.body as IEditWorkingHoursServiceDto;
 
-     if (!EditWorkingHoursValidator(body)) {
+    if (!EditWorkingHoursValidator(body)) {
       return res.status(400).send(EditWorkingHoursValidator.errors);
     }
 
     const data: IEditWorkingHours = {};
+
+    if (body.open) {
+      data.open = body.open;
+    }
 
     if (body.openingHours) {
       data.opening_hours = body.openingHours;
@@ -83,11 +88,7 @@ export default class WorkingHoursController extends BaseController {
     }
 
     this.services.workingHours
-      .editById(
-        workingHoursId,
-        data,
-        {}
-      )
+      .editById(workingHoursId, data, {})
       .then((result) => {
         res.send(result);
       })

@@ -11,6 +11,7 @@ enum DayInAWeek {
 export default class WorkingHoursModel {
   workingHoursId: number;
   day: DayInAWeek;
+  open: number;
   openingHours: string;
   closingHours: string;
   isClosed: string;

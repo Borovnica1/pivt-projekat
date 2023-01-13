@@ -5,7 +5,7 @@ import { IEditAddress } from "./dto/IEditAddress.dto";
 
 import IModel from "../../common/IModel.interface";
 
-class AddressModel implements IModel {
+export class AddressModel implements IModel {
   addressId: number;
   restaurantId: number;
 

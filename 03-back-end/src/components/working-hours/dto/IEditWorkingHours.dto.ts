@@ -9,12 +9,14 @@ const ajv = new Ajv({
 addFormats(ajv);
 
 export default interface IEditWorkingHours {
+  open?: number;
   opening_hours?: Date;
   closing_hours?: Date;
   is_closed?: boolean;
 }
 
 interface IEditWorkingHoursServiceDto {
+  open?: number;
   openingHours?: Date;
   closingHours?: Date;
   isClosed?: boolean;
