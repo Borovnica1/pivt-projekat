@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
+  Badge,
   Button,
-  Card,
   Carousel,
   Col,
   Container,
+  FloatingLabel,
+  Form,
   Modal,
   Row,
 } from "react-bootstrap";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { api } from "../../../api/api";
 import IRestaurant, { ITableModel } from "../../../models/IRestaurant.model";
 import * as path from "path-browserify";
@@ -19,40 +21,309 @@ import DatePicker from "react-datepicker";
 import { addDays, subDays } from "date-fns";
 
 import "react-datepicker/dist/react-datepicker.css";
+import { IReservation } from "../../../models/IReservation.model";
+import IWorkingHours from "../../../models/IWorkingHours.model";
+import AuthStore from "../../../stores/AuthStore";
+import IUser from "../../../models/IUser.model";
 
 export function RestaurantPage() {
   const [restaurant, setRestaurant] = useState<IRestaurant>();
   const [error, setError] = useState("");
+  const [errorReservations, setErrorReservations] = useState("");
+  const [errorMakeReservation, setErrorMakeReservation] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
   const [tableChosen, setTableChosen] = useState<ITableModel>();
-  const [selectedReservationDate, setSelectedReservationDate] = useState<Date>(
-    new Date()
-  );
+  const [selectedReservationDate, setSelectedReservationDate] =
+    useState<Date>();
 
   const [show, setShow] = useState(false);
 
+  const [availableReservations, setAvailableReservations] = useState<string[]>(
+    []
+  );
+  const [reservationTime, setReservationTime] = useState<string>("");
+  const [reservationTimeDurations, setReservationTimeDurations] = useState<
+    { value: number; time: string }[]
+  >([]);
+  const [reservationTimeDuration, setReservationTimeDuration] = useState<
+    number | undefined
+  >();
+  const reservationTimeDurationRef = useRef<HTMLSelectElement>(null);
+  const [role, setRole] = useState<
+    "visitor" | "user" | "manager" | "administrator"
+  >(AuthStore.getState().role);
+  const [visitorFirstName, setVisitorFirstName] = useState("");
+  const [visitorLastName, setVisitorLastName] = useState("");
+  const [visitorPhoneNumber, setVisitorPhoneNumber] = useState("");
+  const [visitorEmail, setVisitorEmail] = useState("");
+
+  if (role === "user") {
+    api("get", "/api/user/" + AuthStore.getState().id, "user").then((res) => {
+      if (res.status === "ok") {
+        setVisitorFirstName(res.data.forename);
+        setVisitorLastName(res.data.surname);
+        setVisitorEmail(res.data.email);
+      }
+    });
+  }
+
+  const handleMakeReservation = () => {
+    // make a reservation
+    console.log(
+      "RESERVATION!!: ",
+      selectedReservationDate,
+      reservationTime,
+      reservationTimeDuration
+    );
+
+    if (selectedReservationDate && reservationTime && reservationTimeDuration) {
+      api(
+        "post",
+        "/api/restaurant/" +
+          restaurant?.restaurantId +
+          "/table/" +
+          tableChosen?.tableId +
+          "/reservation",
+        "user",
+        {
+          firstName: visitorFirstName,
+          lastName: visitorLastName,
+          phoneNumber: visitorPhoneNumber,
+          email: visitorEmail,
+          reservationDate:
+            selectedReservationDate?.getFullYear() +
+            "-" +
+            ("0" + (selectedReservationDate?.getMonth() + 1)).slice(-2) +
+            "-" +
+            ("0" + selectedReservationDate?.getDate()).slice(-2) +
+            " " +
+            reservationTime +
+            ":00",
+          reservationDuration: reservationTimeDuration,
+          status: "pending",
+        }
+      )
+        .then((res) => {
+          if (res.status === "ok") {
+            // reservation was successfull now we close modal make, show notification that it was successful and send email!!
+            setShow(false);
+          }
+        })
+        .catch((error) => {
+          console.log("make reservation error???:", error);
+          setErrorMakeReservation(error.data);
+        });
+    }
+  };
   const handleClose = () => setShow(false);
   const handleShow = (table: ITableModel) => {
+    const maxTableDurations: { value: number; time: string }[] = [];
+    let maxTableDurationTime = table.tableMaxReservationDuration;
+
+    while (maxTableDurationTime > 0) {
+      maxTableDurations.push({
+        value: maxTableDurationTime,
+        time: maxTableDurationTime + " min",
+      });
+      maxTableDurationTime -= 30;
+    }
+
+    setReservationTimeDurations(maxTableDurations);
     setTableChosen(table);
+    setReservationTime("");
+    setReservationTimeDuration(undefined);
     setShow(true);
   };
   const dateChanged = async (date: Date) => {
+    setErrorReservations("");
     const dateForSql =
-      date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate();
+      date.getFullYear() +
+      "-" +
+      ("0" + (date.getMonth() + 1)).slice(-2) +
+      "-" +
+      ("0" + date.getDate()).slice(-2);
     const tableReservations = await api(
       "get",
       "/api/table/" + tableChosen?.tableId + "/reservation/" + dateForSql,
       "user"
-    );
+    )
+      .then((res) => {
+        if (res.status === "ok") return res.data;
+        else return null;
+      })
+      .catch((error) => {
+        setErrorReservations(error.data);
+      });
     console.log(
       "izabran datum je: ",
-      date,
-      date.getDate(),
+      tableReservations,
       "asssss sql",
-      dateForSql
+      dateForSql,
+      "odabran dan datuma je: ",
+      date.getDay()
     );
+
+    let availableReservationsTimes = [];
+
+    if (tableReservations && restaurant) {
+      availableReservationsTimes =
+        calculateAvailableReservationTimesForSpecificDay(
+          date.getDay() - 1,
+          tableReservations,
+          restaurant
+        );
+    }
+
+    setAvailableReservations(availableReservationsTimes);
     setSelectedReservationDate(date);
   };
+
+  function calculateAvailableReservationTimesForSpecificDay(
+    dayIndex: number,
+    tableReservations: IReservation[],
+    restaurant2: IRestaurant
+  ): any[] {
+    const weekDays = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+
+    const restaurantWorkingDay: IWorkingHours =
+      restaurant2.workingHours.find(
+        (workingDay) => workingDay.day === weekDays[dayIndex]
+      ) || restaurant2.workingHours[0];
+
+    console.log(
+      "working DAY JE: ",
+      restaurantWorkingDay,
+      "Table raeseservations: ",
+      tableReservations
+    );
+
+    const tableReservationsTimes = tableReservations.map((reservation) => {
+      const reservationDateTime = new Date(reservation.reservationDate);
+      console.log(
+        "reservationDateTime 11111: ",
+        reservationDateTime,
+        reservationDateTime.getHours(),
+        reservationDateTime.getMinutes()
+      );
+      return {
+        hours: reservationDateTime.getHours(),
+        minutes: reservationDateTime.getMinutes(),
+        duration: reservation.reservationDuration,
+      };
+    });
+
+    const tableReservationsTimesSorted = tableReservationsTimes.sort(function (
+      reservationA,
+      reservationB
+    ) {
+      if (reservationA.hours === reservationB.hours) {
+        // Price is only important when cities are the same
+        return reservationA.minutes - reservationB.minutes;
+      }
+      return reservationA.hours > reservationB.hours ? 1 : -1;
+    });
+    console.log("tableReservationsTimesSorted", tableReservationsTimesSorted);
+
+    const availableReservations = [];
+
+    let [restaurantOpeningTimeInHours, restaurantOpeningTimeInMinutes]: [
+      number,
+      number
+    ] = [
+      +restaurantWorkingDay?.openingHours.slice(0, 2),
+      +restaurantWorkingDay?.openingHours.slice(3, 5),
+    ];
+    let [restaurantClosingTimeInHours, restaurantClosingTimeInMinutes]: [
+      number,
+      number
+    ] = [
+      +restaurantWorkingDay?.closingHours.slice(0, 2),
+      +restaurantWorkingDay?.closingHours.slice(3, 5),
+    ];
+
+    let reservationsTimesIndex = 0;
+    console.log(
+      "restaurantOpeningTimeInHours:",
+      restaurantOpeningTimeInHours,
+      "restaurantOpeningTimeInMinutes:",
+      restaurantOpeningTimeInMinutes,
+      "restaurantClosingTimeInHours:",
+      restaurantClosingTimeInHours,
+      "restaurantClosingTimeInMinutes:",
+      restaurantClosingTimeInMinutes
+    );
+    while (
+      restaurantOpeningTimeInHours < restaurantClosingTimeInHours ||
+      restaurantOpeningTimeInMinutes < restaurantClosingTimeInMinutes
+    ) {
+      console.log(
+        "restaurantOpeningTimeInHours:",
+        restaurantOpeningTimeInHours,
+        "restaurantOpeningTimeInMinutes:",
+        restaurantOpeningTimeInMinutes
+      );
+
+      // here we are checking if we are overlapping with someone elses reservation and if we do we add that reservation duration and add it on our current time so we can continue to search for available times
+      if (
+        restaurantOpeningTimeInHours ===
+          tableReservationsTimesSorted[reservationsTimesIndex].hours &&
+        restaurantOpeningTimeInMinutes ===
+          tableReservationsTimesSorted[reservationsTimesIndex].minutes
+      ) {
+        const hoursToAdd = Math.floor(
+          tableReservationsTimesSorted[reservationsTimesIndex].duration / 60
+        );
+        const minutesToAdd =
+          tableReservationsTimesSorted[reservationsTimesIndex].duration % 60;
+
+        restaurantOpeningTimeInHours += hoursToAdd;
+        restaurantOpeningTimeInMinutes += minutesToAdd;
+
+        reservationsTimesIndex += 1;
+
+        continue;
+      }
+
+      availableReservations.push(
+        ("0" + restaurantOpeningTimeInHours).slice(-2) +
+          ":" +
+          ("0" + restaurantOpeningTimeInMinutes).slice(-2)
+      );
+
+      restaurantOpeningTimeInMinutes += 30;
+      // check after adding 30 minutes if minutes are 1 hour or more
+      if (restaurantOpeningTimeInMinutes / 60 >= 1) {
+        restaurantOpeningTimeInMinutes %= 60;
+        restaurantOpeningTimeInHours += 1;
+      }
+    }
+
+    console.log("available reservation times: ", availableReservations);
+    return availableReservations;
+  }
+
+  function reservationTimeDurationChanged(nes: any) {
+    console.log("nes: ", nes);
+
+    if (reservationTimeDurationRef) {
+      console.log(
+        "reservationTimeDurationRef: ",
+        reservationTimeDurationRef?.current?.value
+      );
+    }
+
+    setReservationTimeDuration(
+      Number(reservationTimeDurationRef?.current?.value)
+    );
+  }
 
   const params = useParams();
 
@@ -99,7 +370,10 @@ export function RestaurantPage() {
         <h2>{restaurant?.name}</h2>
         <Carousel style={{ height: "500px" }}>
           {restaurant?.photos?.map((photo) => (
-            <Carousel.Item style={{ width: "100%", height: "100%" }}>
+            <Carousel.Item
+              style={{ width: "100%", height: "100%" }}
+              key={photo.filePath}
+            >
               <img
                 className="d-block w-100"
                 src={
@@ -117,7 +391,7 @@ export function RestaurantPage() {
         </Carousel>
         <p>{restaurant?.description || "No description..."}</p>
         {restaurant?.addresses?.map((address) => {
-          return <h5>{address.streetAndNumber}</h5>;
+          return <h5 key={address.addressId}>{address.streetAndNumber}</h5>;
         })}
         <h5>Radno vreme restorana:</h5>
         <ul>
@@ -170,12 +444,12 @@ export function RestaurantPage() {
         <Container>
           <Row xs={1} sm={2} md={3} lg={4} xxl={6}>
             {restaurant?.tables?.map((table) => (
-              <Col style={{ padding: "10px" }}>
+              <Col style={{ padding: "10px" }} key={table.tableId}>
                 <h3>{table.tableName}</h3>
                 <h5>{"Broj mesta: " + table.tableCapacity}</h5>
                 <h5>
                   {"Max vreme rezervacije: " +
-                    table.tableMaxReservationDuratio +
+                    table.tableMaxReservationDuration +
                     "min"}
                 </h5>
                 <Button variant="primary" onClick={() => handleShow(table)}>
@@ -206,15 +480,138 @@ export function RestaurantPage() {
                 excludeDates={restaurant?.daysOff?.map(
                   (dayOff) => new Date(dayOff.dayOffDate)
                 )}
-                placeholderText="This only includes dates with reservations available from today and next 30 days"
+                placeholderText="Izaberite datum"
               />
             </div>
+            <div>
+              {errorReservations && (
+                <p className="alert alert-danger">{errorReservations}</p>
+              )}
+              {availableReservations.length > 0 && (
+                <h5>2. Izaberite vreme rezervacije</h5>
+              )}
+              {availableReservations.length > 0 &&
+                availableReservations.map((availableReservation) => {
+                  return (
+                    <Badge
+                      key={"availableReservation" + availableReservation}
+                      onClick={() => setReservationTime(availableReservation)}
+                      bg="info"
+                      style={{
+                        marginLeft: "5px",
+                        marginRight: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {availableReservation}
+                    </Badge>
+                  );
+                })}
+              {reservationTime && (
+                <div>
+                  Vreme rezervacije:{" "}
+                  <Badge
+                    bg="info"
+                    style={{ marginLeft: "5px", marginRight: "5px" }}
+                  >
+                    {reservationTime}
+                  </Badge>
+                </div>
+              )}
+            </div>
+            {reservationTime && (
+              <div style={{ marginTop: "10px" }}>
+                <h5>3. Izaberite vreme trajanja rezervacije</h5>
+                <Form.Select
+                  aria-label="Default select example"
+                  ref={reservationTimeDurationRef}
+                  onChange={(e) => reservationTimeDurationChanged(e)}
+                >
+                  <option>Duzine rezervacije</option>
+                  {reservationTimeDurations.map((reservationTimeDuration) => {
+                    return (
+                      <option
+                        key={
+                          "reservationTimeDuration-" +
+                          reservationTimeDuration.time
+                        }
+                        value={reservationTimeDuration.value}
+                      >
+                        {reservationTimeDuration.time}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
+              </div>
+            )}
+            {selectedReservationDate &&
+              reservationTime &&
+              reservationTimeDuration && (
+                <div style={{ marginTop: "10px" }}>
+                  <h5>4. Unesite podatke za rezervaciju</h5>
+                  <FloatingLabel
+                    controlId="floatingInput"
+                    label="First name"
+                    className="mb-3 mt-3"
+                  >
+                    <Form.Control
+                      type="text"
+                      placeholder="Firstname"
+                      onChange={(e) => setVisitorFirstName(e.target.value)}
+                    />
+                  </FloatingLabel>
+                  <FloatingLabel
+                    controlId="floatingInput"
+                    label="Last name"
+                    className="mb-3"
+                  >
+                    <Form.Control
+                      type="text"
+                      placeholder="Lastname"
+                      onChange={(e) => setVisitorLastName(e.target.value)}
+                    />
+                  </FloatingLabel>
+                  <FloatingLabel
+                    controlId="floatingInput"
+                    label="Email address"
+                    className="mb-3"
+                  >
+                    <Form.Control
+                      type="email"
+                      placeholder="name@example.com"
+                      onChange={(e) => setVisitorEmail(e.target.value)}
+                    />
+                  </FloatingLabel>
+                  <FloatingLabel
+                    controlId="floatingPhoneNumber"
+                    label="PhoneNumber"
+                  >
+                    <Form.Control
+                      type="text"
+                      placeholder="PhoneNumber"
+                      onChange={(e) => setVisitorPhoneNumber(e.target.value)}
+                    />
+                  </FloatingLabel>
+                  {errorMakeReservation && <div>{errorMakeReservation}</div>}
+                </div>
+              )}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button variant="primary" onClick={handleClose}>
+            <Button
+              variant="primary"
+              onClick={handleMakeReservation}
+              disabled={
+                selectedReservationDate &&
+                reservationTime &&
+                reservationTimeDuration &&
+                visitorEmail
+                  ? false
+                  : true
+              }
+            >
               Rezervisi sto
             </Button>
           </Modal.Footer>

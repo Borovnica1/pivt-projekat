@@ -10,7 +10,7 @@ export class TableModel implements IModel {
 
   tableName: string;
   tableCapacity: string;
-  tableMaxReservationDuratio: string;
+  tableMaxReservationDuration: number;
 }
 
 export interface ITableAdapterOptions extends IAdapterOptions {}
@@ -34,7 +34,7 @@ export default class TableService extends BaseService<
       table.restaurantId = data?.restaurant_id;
       table.tableName = data?.table_name;
       table.tableCapacity = data?.table_capacity;
-      table.tableMaxReservationDuratio = data?.table_max_reservation_duration;
+      table.tableMaxReservationDuration = +data?.table_max_reservation_duration;
 
       resolve(table);
     });

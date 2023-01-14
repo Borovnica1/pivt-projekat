@@ -28,7 +28,7 @@ export default class ReservationService extends BaseService<
       reservation.phoneNumber = data.phone_number;
       reservation.email = data.email;
       reservation.reservationDate = data.reservation_date;
-      reservation.reservationDuration = data.reservation_duration;
+      reservation.reservationDuration = +data.reservation_duration;
       reservation.status = data.status;
       reservation.tableId = data.table_id;
       reservation.userId = data.user_id;

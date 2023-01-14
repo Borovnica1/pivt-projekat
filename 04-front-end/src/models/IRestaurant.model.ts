@@ -18,7 +18,7 @@ export interface ITableModel {
 
   tableName: string;
   tableCapacity: string;
-  tableMaxReservationDuratio: string;
+  tableMaxReservationDuration: number;
 }
 
 interface IRestaurant {

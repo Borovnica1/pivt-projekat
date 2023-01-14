@@ -18,7 +18,7 @@ ajv.addKeyword({
 export interface IAddReservationDto {
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   email: string;
   reservationDate: string;
   reservationDuration: number;
@@ -26,16 +26,19 @@ export interface IAddReservationDto {
   tableId: number;
 }
 
+
+
 export interface IAddReservation extends IServiceData {
   first_name: string;
   last_name: string;
-  phone_number: string;
+  phone_number?: string;
   email: string;
   reservation_date: string;
   reservation_duration: number;
   status: string;
   table_id: number;
 }
+
 
 const date = new Date();
 

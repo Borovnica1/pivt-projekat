@@ -98,10 +98,9 @@ export default class ReservationController extends BaseController {
         email: data.email,
         first_name: data.firstName,
         last_name: data.lastName,
-        phone_number: data.phoneNumber,
         reservation_date: data.reservationDate,
         reservation_duration: data.reservationDuration,
-        status: data.status,
+        status: 'pending',
       })
       .then((result) => {
         res.send(result);
