@@ -20,6 +20,9 @@ export default function MenuVisitor() {
           <Link className="nav-item nav-link" to="/locations">
             Locations
           </Link>
+          <Link className="nav-item nav-link" to="/restaurants">
+            Restaurants
+          </Link>
           <Link className="nav-item nav-link" to="/auth/user/login">
             User login
           </Link>

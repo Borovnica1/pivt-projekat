@@ -12,13 +12,15 @@ export function RestaurantsPage() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const params = useParams();
-
+  console.log("RENDER RestaurantsPage RENDER RestaurantsPage RENDER!!");
   useEffect(() => {
     setLoading(true);
 
     api(
       "get",
-      "/api/location/" + (params.lid ? params.lid : "") + "/restaurant",
+      params.lid
+        ? "/api/location/" + params.lid + "/restaurant"
+        : "/api/restaurant",
       "user"
     )
       .then((res) => {
@@ -32,7 +34,7 @@ export function RestaurantsPage() {
         setError(res.data);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [params.lid]);
 
   return (
     <>
@@ -44,13 +46,6 @@ export function RestaurantsPage() {
           {restaurants.map((restaurant) => {
             const photoFilePath: string =
               restaurant?.photos?.[0]?.filePath || "";
-            console.log(
-              "photoFilePath::: ",
-              "/assets/" +
-                path.dirname(photoFilePath) +
-                "/small-" +
-                path.basename(photoFilePath)
-            );
             return (
               <Col
                 xs={12}

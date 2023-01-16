@@ -94,9 +94,10 @@ function handleApiError(
   }
 
   if (err?.response?.status === 400) {
+    console.log("erorrrrrrrrrrr", err);
     return resolve({
       status: "error",
-      data: err?.response.statusText,
+      data: err?.response.data,
     });
   }
 

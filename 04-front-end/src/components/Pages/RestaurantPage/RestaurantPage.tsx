@@ -10,6 +10,8 @@ import {
   Form,
   Modal,
   Row,
+  Toast,
+  ToastContainer,
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { api } from "../../../api/api";
@@ -37,6 +39,7 @@ export function RestaurantPage() {
     useState<Date>();
 
   const [show, setShow] = useState(false);
+  const [toastShow, setToastShow] = useState(false);
 
   const [availableReservations, setAvailableReservations] = useState<string[]>(
     []
@@ -52,6 +55,7 @@ export function RestaurantPage() {
   const [role, setRole] = useState<
     "visitor" | "user" | "manager" | "administrator"
   >(AuthStore.getState().role);
+  // to do: group some of these states into useReducer hook instead
   const [visitorFirstName, setVisitorFirstName] = useState("");
   const [visitorLastName, setVisitorLastName] = useState("");
   const [visitorPhoneNumber, setVisitorPhoneNumber] = useState("");
@@ -88,7 +92,7 @@ export function RestaurantPage() {
         {
           firstName: visitorFirstName,
           lastName: visitorLastName,
-          phoneNumber: visitorPhoneNumber,
+          phoneNumber: visitorPhoneNumber ? visitorPhoneNumber : undefined,
           email: visitorEmail,
           reservationDate:
             selectedReservationDate?.getFullYear() +
@@ -106,7 +110,11 @@ export function RestaurantPage() {
         .then((res) => {
           if (res.status === "ok") {
             // reservation was successfull now we close modal make, show notification that it was successful and send email!!
+            setToastShow(true);
             setShow(false);
+          } else {
+            console.log("make reservation error??? resresres:", res);
+            setErrorMakeReservation(JSON.stringify(res.data));
           }
         })
         .catch((error) => {
@@ -117,18 +125,6 @@ export function RestaurantPage() {
   };
   const handleClose = () => setShow(false);
   const handleShow = (table: ITableModel) => {
-    const maxTableDurations: { value: number; time: string }[] = [];
-    let maxTableDurationTime = table.tableMaxReservationDuration;
-
-    while (maxTableDurationTime > 0) {
-      maxTableDurations.push({
-        value: maxTableDurationTime,
-        time: maxTableDurationTime + " min",
-      });
-      maxTableDurationTime -= 30;
-    }
-
-    setReservationTimeDurations(maxTableDurations);
     setTableChosen(table);
     setReservationTime("");
     setReservationTimeDuration(undefined);
@@ -344,6 +340,46 @@ export function RestaurantPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // everytime we choose reservation time we have to adjust how much time we can stay at that table depending on next reservation time and closing hours of restaurant. minimum time for every reservation is 30 min at least!
+  useEffect(() => {
+    const maxTableDurations: { value: number; time: string }[] = [];
+    if (tableChosen) {
+      let reservationTimeIndex = availableReservations.findIndex(
+        (time) => time === reservationTime
+      );
+      let [nextReservationTimeHours, nextReservationTimeMinutes]: [
+        number,
+        number
+      ] = [+reservationTime.slice(0, 2), +reservationTime.slice(3, 5)];
+      let maxTableDurationTime = tableChosen.tableMaxReservationDuration;
+      let tableDuration = 30;
+
+      while (
+        tableDuration <= maxTableDurationTime &&
+        availableReservations[reservationTimeIndex] ===
+          ("0" + nextReservationTimeHours).slice(-2) +
+            ":" +
+            ("0" + nextReservationTimeMinutes).slice(-2)
+      ) {
+        reservationTimeIndex += 1;
+        nextReservationTimeMinutes += 30;
+        if (nextReservationTimeMinutes / 60 >= 1) {
+          nextReservationTimeHours += 1;
+          nextReservationTimeMinutes %= 60;
+        }
+
+        maxTableDurations.push({
+          value: tableDuration,
+          time: tableDuration + " min",
+        });
+        tableDuration += 30;
+        if (reservationTimeIndex >= availableReservations.length) break;
+      }
+
+      setReservationTimeDurations(maxTableDurations);
+    }
+  }, [reservationTime]);
+
   const photoFilePaths: string[] | undefined = restaurant?.photos?.map(
     (photo) => {
       return photo?.filePath;
@@ -362,7 +398,7 @@ export function RestaurantPage() {
   }
 
   return (
-    <div style={{ marginBottom: "50px" }}>
+    <div style={{ marginBottom: "50px", position: "relative" }}>
       {loading && <p>Loading...</p>}
       {error && <p className="alert alert-danger">{error}</p>}
 
@@ -487,6 +523,10 @@ export function RestaurantPage() {
               {errorReservations && (
                 <p className="alert alert-danger">{errorReservations}</p>
               )}
+              {availableReservations.length === 0 &&
+                selectedReservationDate && (
+                  <h5>Nema slobodnih termina za ovaj datum!</h5>
+                )}
               {availableReservations.length > 0 && (
                 <h5>2. Izaberite vreme rezervacije</h5>
               )}
@@ -592,7 +632,14 @@ export function RestaurantPage() {
                       onChange={(e) => setVisitorPhoneNumber(e.target.value)}
                     />
                   </FloatingLabel>
-                  {errorMakeReservation && <div>{errorMakeReservation}</div>}
+                  {errorMakeReservation && (
+                    <Alert
+                      style={{ marginTop: "10px", overflowWrap: "anywhere" }}
+                      variant="warning"
+                    >
+                      {errorMakeReservation}
+                    </Alert>
+                  )}
                 </div>
               )}
           </Modal.Body>
@@ -617,6 +664,21 @@ export function RestaurantPage() {
           </Modal.Footer>
         </Modal>
       </>
+      <ToastContainer className="p-3" position="bottom-center">
+        <Toast
+          onClose={() => setToastShow(false)}
+          show={toastShow}
+          delay={3000}
+          autohide
+        >
+          <Toast.Header>
+            <strong className="me-auto">Notification</strong>
+          </Toast.Header>
+          <Toast.Body>
+            <Alert variant={"success"}>Reservation created successfully!</Alert>
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
   );
 }

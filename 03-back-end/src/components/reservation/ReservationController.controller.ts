@@ -10,6 +10,9 @@ import {
   IEditReservationDto,
 } from "./dto/IEditReservation.dto";
 import { RestaurantManagerModel } from "../restaurant/RestaurantModel.model";
+import ReservationModel from "./ReservationModel.model";
+import * as Mailer from "nodemailer/lib/mailer";
+import { DevConfig } from "../../configs";
 
 export default class ReservationController extends BaseController {
   async getAllReservationsByManagerOrUserId(req: Request, res: Response) {
@@ -100,7 +103,12 @@ export default class ReservationController extends BaseController {
         last_name: data.lastName,
         reservation_date: data.reservationDate,
         reservation_duration: data.reservationDuration,
-        status: 'pending',
+        status: "pending",
+      })
+      .then((result) => {
+        this.sendReservationCreatedEmail(result);
+        this.sendReservationConfirmationEmailForManager(result);
+        return result;
       })
       .then((result) => {
         res.send(result);
@@ -108,6 +116,141 @@ export default class ReservationController extends BaseController {
       .catch((error) => {
         res.status(400).send(error?.message);
       });
+  }
+
+  private async sendReservationCreatedEmail(
+    reservation: ReservationModel
+  ): Promise<ReservationModel> {
+    return new Promise((resolve, reject) => {
+      const transport = this.getMailTransport();
+
+      const mailOptions: Mailer.Options = {
+        to: reservation.email,
+        subject: "Reservation was created!",
+        html: `<!doctype html>
+               <html>
+                  <head><meta charset="utf-8"></head>
+                  <body>
+                    <p> Dear ${reservation.firstName} ${reservation.lastName}, <br>
+                    Your reservation was successfully created and now is pending confirmation from manager!
+                    </p>
+                  </body>
+               </html>`,
+      };
+
+      transport
+        .sendMail(mailOptions)
+        .then(() => {
+          transport.close();
+
+          resolve(reservation);
+        })
+        .catch((error) => {
+          transport.close();
+
+          reject({
+            message: error?.message,
+          });
+        });
+    });
+  }
+
+  private async sendReservationConfirmationEmail(
+    reservation: ReservationModel
+  ): Promise<ReservationModel> {
+    return new Promise((resolve, reject) => {
+      const transport = this.getMailTransport();
+
+      const mailOptions: Mailer.Options = {
+        to: reservation.email,
+        subject: "Reservation confirmed!",
+        html: `<!doctype html>
+               <html>
+                  <head><meta charset="utf-8"></head>
+                  <body>
+                    <p> Dear ${reservation.firstName} ${reservation.lastName}, <br>
+                    Your reservation is confirmed!.
+                    </p>
+                    <p>
+                    Your reservation date: ${reservation.reservationDate}
+                    </p>
+                                        <p>
+                    Your reservation duration: ${reservation.reservationDuration} min
+                    </p>
+                  </body>
+               </html>`,
+      };
+
+      transport
+        .sendMail(mailOptions)
+        .then(() => {
+          transport.close();
+
+          resolve(reservation);
+        })
+        .catch((error) => {
+          transport.close();
+
+          reject({
+            message: error?.message,
+          });
+        });
+    });
+  }
+
+  private async sendReservationConfirmationEmailForManager(
+    reservation: ReservationModel
+  ): Promise<ReservationModel> {
+    const manager = await this.services.table
+      .baseGetById(reservation.tableId, {})
+      .then(async (table) => {
+        return await this.services.restaurant.getRestaurantManagerByRestaurantId(
+          table.restaurantId
+        );
+      })
+      .then(async (restaurantManager) => {
+        return await this.services.manager.baseGetById(
+          restaurantManager.managerId,
+          { removePassword: true }
+        );
+      });
+
+    return new Promise((resolve, reject) => {
+      const transport = this.getMailTransport();
+
+      const mailOptions: Mailer.Options = {
+        to: manager.email,
+        subject: "Reservation made!",
+        html: `<!doctype html>
+               <html>
+                  <head><meta charset="utf-8"></head>
+                  <body>
+                    <p> Dear ${manager.username},
+                    <br>
+                                                  <a href="${DevConfig.frontend.route}/reservation/${reservation.reservationId}"
+                                sryle="display: inline-block; padding: 10px 20px; color:#fff; background-color: #db0002; text-decoration: none;">
+                                  Click here to check reservation!
+                            </a>
+                    </p>
+                  </body>
+               </html>`,
+      };
+
+      transport
+        .sendMail(mailOptions)
+        .then(() => {
+          transport.close();
+
+          resolve(reservation);
+        })
+        .catch((error) => {
+          transport.close();
+
+          reject({
+            message: error?.message,
+          });
+        });
+    });
   }
 
   async edit(req: Request, res: Response) {
@@ -169,6 +312,9 @@ export default class ReservationController extends BaseController {
         this.services.reservation
           .edit(reservationId, newReservation)
           .then((result) => {
+            if (result.status === "confirmed") {
+              this.sendReservationConfirmationEmail(result);
+            }
             res.send(result);
           })
           .catch((error) => {

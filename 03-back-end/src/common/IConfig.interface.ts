@@ -93,6 +93,9 @@ interface IConfig {
     manager: IAuthTokenOptions;
     allowAllRoutesWithoutAuthToken: boolean;
   };
+  frontend: {
+    route: string;
+  };
 }
 
 export { IConfig };

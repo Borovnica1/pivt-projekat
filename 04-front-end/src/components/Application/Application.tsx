@@ -39,6 +39,7 @@ function Application() {
               element={<AdministratorLoginPage />}
             />
             <Route path="/locations" element={<LocationsPage />} />
+            <Route path="/restaurants" element={<RestaurantsPage />} />
             <Route path="/location/:id" element={<UserLocationPage />} />
             <Route
               path="/location/:lid/restaurants"

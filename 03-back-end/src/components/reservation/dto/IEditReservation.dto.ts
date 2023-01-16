@@ -24,6 +24,10 @@ const EditReservationValidator = ajv.compile({
       type: "string",
       pattern: "\\+[0-9]{8,23}",
     },
+    status: {
+      type: "string",
+      pattern: "confirmed",
+    },
   },
   additionalProperties: true,
 });

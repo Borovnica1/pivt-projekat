@@ -11,9 +11,7 @@ import IEditUser, {
   IEditUserDto,
 } from "./dto/IEditUser.dto";
 import UserModel from "./UserModel.model";
-import * as nodemailer from "nodemailer";
 import * as Mailer from "nodemailer/lib/mailer";
-import { DevConfig } from "../../configs";
 import {
   IPasswordResetDto,
   PasswordResetValidator,
@@ -490,27 +488,6 @@ class UserController extends BaseController {
           });
         });
     });
-  }
-
-  private getMailTransport() {
-    return nodemailer.createTransport(
-      {
-        host: DevConfig.mail.host,
-        port: DevConfig.mail.port,
-        secure: false,
-        tls: {
-          ciphers: "SSLv3",
-        },
-        debug: DevConfig.mail.debug,
-        auth: {
-          user: DevConfig.mail.email,
-          pass: DevConfig.mail.password,
-        },
-      },
-      {
-        from: DevConfig.mail.email,
-      }
-    );
   }
 }
 

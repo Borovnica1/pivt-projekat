@@ -131,6 +131,9 @@ const DevConfig: IConfig = {
     },
     allowAllRoutesWithoutAuthToken: false,
   },
+  frontend: {
+    route: "http://localhost:3000",
+  },
 };
 
 DevConfig.mail = MailConfigurationParameters;
