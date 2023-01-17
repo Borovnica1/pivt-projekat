@@ -53,7 +53,7 @@ type TReset = { type: "reset" };
 
 type TAuthStoreAction = TUpdateRole | TUpdateId | TUpdateStrings | TReset;
 
-function AuthStoreReducer(
+export function AuthStoreReducer(
   state: IAuthStoreData = InitialAuthStoreData,
   action: TAuthStoreAction
 ): IAuthStoreData {

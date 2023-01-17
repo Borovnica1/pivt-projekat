@@ -138,7 +138,7 @@ export function RestaurantPage() {
       ("0" + (date.getMonth() + 1)).slice(-2) +
       "-" +
       ("0" + date.getDate()).slice(-2);
-    const tableReservations = await api(
+    let tableReservations: IReservation[] = await api(
       "get",
       "/api/table/" + tableChosen?.tableId + "/reservation/" + dateForSql,
       "user"
@@ -157,6 +157,9 @@ export function RestaurantPage() {
       dateForSql,
       "odabran dan datuma je: ",
       date.getDay()
+    );
+    tableReservations = tableReservations.filter(
+      (tableReservation) => tableReservation.status === "confirmed"
     );
 
     let availableReservationsTimes = [];
@@ -269,6 +272,7 @@ export function RestaurantPage() {
 
       // here we are checking if we are overlapping with someone elses reservation and if we do we add that reservation duration and add it on our current time so we can continue to search for available times
       if (
+        reservationsTimesIndex < tableReservationsTimesSorted.length &&
         restaurantOpeningTimeInHours ===
           tableReservationsTimesSorted[reservationsTimesIndex].hours &&
         restaurantOpeningTimeInMinutes ===
@@ -591,23 +595,25 @@ export function RestaurantPage() {
                   <h5>4. Unesite podatke za rezervaciju</h5>
                   <FloatingLabel
                     controlId="floatingInput"
-                    label="First name"
+                    label="First name  (optional)"
                     className="mb-3 mt-3"
                   >
                     <Form.Control
                       type="text"
                       placeholder="Firstname"
+                      defaultValue={visitorFirstName}
                       onChange={(e) => setVisitorFirstName(e.target.value)}
                     />
                   </FloatingLabel>
                   <FloatingLabel
                     controlId="floatingInput"
-                    label="Last name"
+                    label="Last name  (optional)"
                     className="mb-3"
                   >
                     <Form.Control
                       type="text"
                       placeholder="Lastname"
+                      defaultValue={visitorLastName}
                       onChange={(e) => setVisitorLastName(e.target.value)}
                     />
                   </FloatingLabel>
@@ -619,12 +625,13 @@ export function RestaurantPage() {
                     <Form.Control
                       type="email"
                       placeholder="name@example.com"
+                      defaultValue={visitorEmail}
                       onChange={(e) => setVisitorEmail(e.target.value)}
                     />
                   </FloatingLabel>
                   <FloatingLabel
                     controlId="floatingPhoneNumber"
-                    label="PhoneNumber"
+                    label="PhoneNumber (optional)"
                   >
                     <Form.Control
                       type="text"

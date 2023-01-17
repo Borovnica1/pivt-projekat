@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import myConfig from "../config";
+import AuthStore from "../stores/AuthStore";
 
 export type TApiMethod = "get" | "post" | "put" | "delete";
 export type TApiRole = "user" | "manager" | "administrator";
@@ -33,7 +34,7 @@ export function api(
       data: data ? JSON.stringify(data) : undefined,
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + "TOKEN WILL GO HERE LATER",
+        Authorization: "Bearer " + AuthStore.getState().authToken,
       },
     })
       .then((res) => handleApiResponse(res, resolve))

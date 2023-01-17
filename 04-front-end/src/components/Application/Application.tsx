@@ -18,6 +18,7 @@ import ManagerRegisterPage from "../Manager/ManagerRegisterPage/ManagerRegisterP
 import { LocationsPage } from "../Pages/LocationsPage/LocationsPage";
 import { RestaurantsPage } from "../Pages/RestaurantsPage/RestaurantsPage";
 import { RestaurantPage } from "../Pages/RestaurantPage/RestaurantPage";
+import ProfilePage from "../Pages/ProfilePage/ProfilePage";
 
 function Application() {
   return (
@@ -40,6 +41,7 @@ function Application() {
             />
             <Route path="/locations" element={<LocationsPage />} />
             <Route path="/restaurants" element={<RestaurantsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/location/:id" element={<UserLocationPage />} />
             <Route
               path="/location/:lid/restaurants"

@@ -32,6 +32,12 @@ export default function MenuUser() {
           <Link className="nav-item nav-link" to="/locations">
             Locations
           </Link>
+          <Link className="nav-item nav-link" to="/restaurants">
+            Restaurants
+          </Link>
+          <Link className="nav-item nav-link" to="/profile">
+            Profile
+          </Link>
           <div
             className="nav-item nav-link"
             style={{ cursor: "pointer" }}

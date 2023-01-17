@@ -101,7 +101,14 @@ export default function UserRegisterPage() {
           </button>
         </div>
 
-        {error && <p className="alert alert-danger">{error}</p>}
+        {error && (
+          <p
+            className="alert alert-danger"
+            style={{ overflowWrap: "anywhere" }}
+          >
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
