@@ -19,6 +19,8 @@ import { LocationsPage } from "../Pages/LocationsPage/LocationsPage";
 import { RestaurantsPage } from "../Pages/RestaurantsPage/RestaurantsPage";
 import { RestaurantPage } from "../Pages/RestaurantPage/RestaurantPage";
 import ProfilePage from "../Pages/ProfilePage/ProfilePage";
+import ManagerDashboard from "../Manager/Dashboard/ManagerDashboard";
+import ManagerReservationsPage from "../Manager/ManagerReservationsPage/ManagerReservationsPage";
 
 function Application() {
   return (
@@ -50,6 +52,11 @@ function Application() {
             <Route
               path="/location/:lid/restaurant/:rid"
               element={<RestaurantPage />}
+            />
+            <Route path="/manager/dashboard" element={<ManagerDashboard />} />
+            <Route
+              path="/manager/dashboard/reservations/:filter"
+              element={<ManagerReservationsPage />}
             />
 
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

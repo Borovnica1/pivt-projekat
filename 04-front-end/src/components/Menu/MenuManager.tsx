@@ -29,13 +29,13 @@ export default function MenuAdministrator() {
 
       <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div className="navbar-nav">
-          <Link className="nav-item nav-link" to="/admin/locations">
+          <Link className="nav-item nav-link" to="/locations">
             Locations
           </Link>
-          <Link className="nav-item nav-link" to="/admin/restaurants">
+          <Link className="nav-item nav-link" to="/restaurants">
             Restaurants
           </Link>
-          <Link className="nav-item nav-link" to="/admin/dashboard">
+          <Link className="nav-item nav-link" to="/manager/dashboard">
             Dashboard
           </Link>
           <div

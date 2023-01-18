@@ -54,7 +54,6 @@ export default class ReservationService extends BaseService<
 
   getAllByTableIdAndDate(tableId, date, options): Promise<ReservationModel[]> {
     return new Promise((resolve, reject) => {
-
       const sql = `SELECT * FROM reservation WHERE reservation_date REGEXP(?) AND table_id = ?;`;
       this.db
         .execute(sql, [date, tableId])
@@ -63,6 +62,49 @@ export default class ReservationService extends BaseService<
 
           for (const row of rows as mysql2.RowDataPacket[]) {
             items.push(await this.adaptToModel(row, options));
+          }
+
+          resolve(items);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  getAllReservationsTableAndRestaurantName(
+    fieldName: string,
+    values: [...any[]],
+    options: IAdapterOptions
+  ): Promise<ReservationModel[]> {
+    return new Promise((resolve, reject) => {
+      let sql: string;
+
+      if (values.length <= 1) {
+        sql = `SELECT reservation.*, \`table\`.table_name, restaurant.restaurant_id, restaurant.name AS restaurant_name FROM reservation LEFT JOIN \`table\` ON reservation.table_id = table.table_id LEFT JOIN restaurant ON restaurant.restaurant_id = table.restaurant_id WHERE reservation.table_id IN (${values[0]}) ORDER BY reservation_date DESC;`;
+      } else {
+        sql = `SELECT reservation.*, \`table\`.table_name, restaurant.restaurant_id, restaurant.name AS restaurant_name FROM reservation LEFT JOIN \`table\` ON reservation.table_id = table.table_id LEFT JOIN restaurant ON restaurant.restaurant_id = table.restaurant_id WHERE reservation.table_id IN (${values
+          .map(() => "?")
+          .join(",")}) ORDER BY reservation_date DESC;`;
+      }
+
+      this.db
+        .execute(sql, [...values])
+        .then(async ([rows]) => {
+          const items: ReservationModel[] = [];
+
+          for (const row of rows as mysql2.RowDataPacket[]) {
+            const reservationData: ReservationModel = await this.adaptToModel(
+              row,
+              {}
+            );
+
+            items.push({
+              ...reservationData,
+              tableName: row.table_name,
+              restaurantName: row.restaurant_name,
+              restaurantId: +row.restaurant_id,
+            });
           }
 
           resolve(items);

@@ -1,4 +1,4 @@
-import IModel from '../../common/IModel.interface';
+import IModel from "../../common/IModel.interface";
 
 export default class ReservationModel implements IModel {
   reservationId: number;
@@ -11,4 +11,7 @@ export default class ReservationModel implements IModel {
   status: "pending" | "confirmed";
   tableId: number;
   userId: number;
+  tableName?: string;
+  restaurantName?: string;
+  restaurantId?: number;
 }

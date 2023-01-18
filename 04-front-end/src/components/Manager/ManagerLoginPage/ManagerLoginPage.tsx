@@ -38,7 +38,7 @@ export default function AdministratorLoginPage() {
         AuthStore.dispatch({
           type: "update",
           key: "identity",
-          value: email,
+          value: data?.identity,
         });
         AuthStore.dispatch({ type: "update", key: "id", value: +data?.id });
         AuthStore.dispatch({
@@ -47,7 +47,7 @@ export default function AdministratorLoginPage() {
           value: "manager",
         });
 
-        navigate("/admin/dashboard", {
+        navigate("/manager/dashboard", {
           replace: true,
         });
       })

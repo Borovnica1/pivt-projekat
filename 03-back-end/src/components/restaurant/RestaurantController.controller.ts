@@ -65,6 +65,16 @@ class RestaurantController extends BaseController {
     res.send(restaurant);
   }
 
+  async getTableById(req: Request, res: Response) {
+    const tableId: number = Number(req.params?.rId);
+
+    const table = await this.services.table.baseGetById(tableId, {});
+
+    if (table === null) return res.status(404).send("nema podaci");
+
+    res.send(table);
+  }
+
   async edit(req: Request, res: Response) {
     const restaurantId: number = Number(req.params?.rId);
     const data = req.body as IEditRestaurantServiceDto;

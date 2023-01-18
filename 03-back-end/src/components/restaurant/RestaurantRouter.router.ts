@@ -87,6 +87,12 @@ class RestaurantRouter implements IRouter {
       AuthMiddleware.getVerifier("manager"),
       restaurantController.deleteTable.bind(restaurantController)
     );
+
+    application.get(
+      "/api/table/:tId",
+      AuthMiddleware.getVerifier("manager", "user"),
+      restaurantController.getTableById.bind(restaurantController)
+    );
   }
 }
 

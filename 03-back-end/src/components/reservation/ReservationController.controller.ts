@@ -39,7 +39,7 @@ export default class ReservationController extends BaseController {
         );
 
         const allReservationsOfManagersTables =
-          await this.services.reservation.getAllByFieldNameAndValue(
+          await this.services.reservation.getAllReservationsTableAndRestaurantName(
             "table_id",
             tableIds,
             {}

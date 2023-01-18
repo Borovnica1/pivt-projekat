@@ -286,6 +286,11 @@ export function RestaurantPage() {
 
         restaurantOpeningTimeInHours += hoursToAdd;
         restaurantOpeningTimeInMinutes += minutesToAdd;
+        // check after adding 30 minutes if minutes are 1 hour or more
+        if (restaurantOpeningTimeInMinutes / 60 >= 1) {
+          restaurantOpeningTimeInMinutes %= 60;
+          restaurantOpeningTimeInHours += 1;
+        }
 
         reservationsTimesIndex += 1;
 
