@@ -44,7 +44,7 @@ export function api(
           path,
           role,
           data,
-          attemptToRefreshToken: false,
+          attemptToRefreshToken,
         })
       );
   });
@@ -55,57 +55,45 @@ function handleApiError(
   resolve: (value: IApiResponse | PromiseLike<IApiResponse>) => void,
   args: IApiArguments
 ) {
-  if (err?.response?.status === 401 && args.attemptToRefreshToken) {
-    const refreshedToken = "REFRESH TOKEN CALL LOGIN WILL GO HERE LATER";
+  if (err?.response?.status === 401 || err?.response?.status === 403) {
+    if (args.attemptToRefreshToken) {
+      refreshToken()
+        .then((token) => {
+          console.log('token je:', token);
+          if (!token) {
+            throw {
+              status: "login",
+              data: "You must log in again!",
+            };
+          }
 
-    if (refreshedToken) {
-      api(
-        args.method,
-        args.path,
-        args.role,
-        args.data,
-        args.attemptToRefreshToken
-      )
-        .then((res) => resolve(res))
-        .catch(() => {
-          resolve({
-            status: "login",
-            data: "You must log in again!",
+          return token;
+        })
+        .then((token) => {
+          AuthStore.dispatch({
+            type: "update",
+            key: "authToken",
+            value: token,
           });
+
+          return api(args.method, args.path, args.role, args.data, false);
+        })
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((error) => {
+          resolve(error);
         });
+    } else {
+      return resolve({
+        status: "login",
+        data: "Wrong role!",
+      });
     }
-    return resolve({
-      status: "login",
-      data: "You must log in again!",
-    });
-  }
-
-  if (err?.response?.status === 401 && !args.attemptToRefreshToken) {
-    return resolve({
-      status: "login",
-      data: "You are not logged in!",
-    });
-  }
-
-  if (err?.response?.status === 403) {
-    return resolve({
-      status: "login",
-      data: "Wrong role!",
-    });
-  }
-
-  if (err?.response?.status === 400) {
-    console.log("erorrrrrrrrrrr", err);
-    return resolve({
+  } else {
+    resolve({
       status: "error",
-      data: err?.response.data,
-    });
-  }
-
-  if (err?.response?.status === 404) {
-    return resolve({
-      status: "error",
-      data: err?.response.statusText,
+      data: err?.response?.data,
     });
   }
 }
@@ -124,4 +112,39 @@ function handleApiResponse(
   }
 
   resolve({ status: "ok", data: res.data });
+}
+
+function refreshToken(): Promise<string | null> {
+  return new Promise((resolve) => {
+    const role = AuthStore.getState().role;
+
+    if (role === "visitor") {
+      return resolve(null);
+    }
+
+    axios({
+      method: "post",
+      baseURL: myConfig.apiBaseUrl,
+      url: "/api/auth/" + role + "/refresh",
+      headers: {
+        Authorization: "Bearer " + AuthStore.getState().refreshToken,
+      },
+    })
+      .then((res) => refreshTokenResponseHandler(res, resolve))
+      .catch(() => {
+        resolve(null);
+      });
+  });
+}
+
+function refreshTokenResponseHandler(
+  res: AxiosResponse<any>,
+  resolve: (value: string | PromiseLike<string | null> | null) => void
+) {
+  console.log('refreshTokenResponseHandler', res);
+  if (res.status !== 200) {
+    return resolve(null);
+  }
+
+  resolve(res.data?.authToken);
 }

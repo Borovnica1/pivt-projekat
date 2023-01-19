@@ -1,11 +1,12 @@
 import IPhoto from "./IPhoto.model";
 import WorkingHours from "./IWorkingHours.model";
 
-interface IAddress {
+export interface IAddressModel {
   addressId: number;
   streetAndNumber: string;
+  phoneNumber: string;
 }
-interface IDayOffModel {
+export interface IDayOffModel {
   dayOffId: number;
   restaurantId: number;
 
@@ -28,7 +29,7 @@ interface IRestaurant {
 
   photos?: IPhoto[];
   workingHours: WorkingHours[];
-  addresses?: IAddress[];
+  addresses?: IAddressModel[];
   daysOff?: IDayOffModel[];
   tables?: ITableModel[];
 }

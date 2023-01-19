@@ -13,13 +13,13 @@ export default function ManagerDashboard() {
             <div className="card-text d-grid gap-3">
               <Link
                 className="btn btn-primary"
-                to="/admin/dashboard/location/list"
+                to="/manager/dashboard/restaurant/list"
               >
                 List my restaurants
               </Link>
               <Link
                 className="btn btn-primary"
-                to="/admin/dashboard/location/add"
+                to="/manager/dashboard/restaurant/add"
               >
                 Add a new restaurant
               </Link>

@@ -21,6 +21,7 @@ import { RestaurantPage } from "../Pages/RestaurantPage/RestaurantPage";
 import ProfilePage from "../Pages/ProfilePage/ProfilePage";
 import ManagerDashboard from "../Manager/Dashboard/ManagerDashboard";
 import ManagerReservationsPage from "../Manager/ManagerReservationsPage/ManagerReservationsPage";
+import ManagerRestaurantAdd from "../Manager/ManagerRestaurantPage/ManagerRestaurantAdd";
 
 function Application() {
   return (
@@ -54,6 +55,10 @@ function Application() {
               element={<RestaurantPage />}
             />
             <Route path="/manager/dashboard" element={<ManagerDashboard />} />
+            <Route
+              path="/manager/dashboard/restaurant/add"
+              element={<ManagerRestaurantAdd />}
+            />
             <Route
               path="/manager/dashboard/reservations/:filter"
               element={<ManagerReservationsPage />}
