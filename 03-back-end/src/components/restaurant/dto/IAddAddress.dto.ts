@@ -7,14 +7,14 @@ addFormats(ajv);
 
 export interface IAddAddressDto {
   streetAndNumber: string;
-  place: string;
+  place?: string;
   phoneNumber: string;
 }
 
 export interface IAddAddress extends IServiceData {
   restaurant_id: number;
   street_and_number: string;
-  place: string;
+  place?: string;
   phone_number: string;
 }
 
@@ -36,7 +36,7 @@ const AddAddressValidator = ajv.compile({
       pattern: "\\+[0-9]{8,23}",
     },
   },
-  required: ["streetAndNumber", "place", "phoneNumber"],
+  required: ["streetAndNumber", "phoneNumber"],
   additionalProperties: false,
 });
 

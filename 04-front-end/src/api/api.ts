@@ -50,6 +50,38 @@ export function api(
   });
 }
 
+export function apiForm(
+  method: TApiMethod,
+  path: string,
+  role: TApiRole,
+  data: FormData,
+  attemptToRefreshToken: boolean = true
+): Promise<IApiResponse> {
+
+  return new Promise((resolve) => {
+    axios({
+      method: method,
+      baseURL: myConfig.apiBaseUrl,
+      url: path,
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: "Bearer " + AuthStore.getState().authToken,
+      },
+    })
+      .then((res) => handleApiResponse(res, resolve))
+      .catch((err) =>
+        handleApiError(err, resolve, {
+          method,
+          path,
+          role,
+          data,
+          attemptToRefreshToken,
+        })
+      );
+  });
+}
+
 function handleApiError(
   err: any,
   resolve: (value: IApiResponse | PromiseLike<IApiResponse>) => void,
@@ -59,7 +91,7 @@ function handleApiError(
     if (args.attemptToRefreshToken) {
       refreshToken()
         .then((token) => {
-          console.log('token je:', token);
+          console.log("token je:", token);
           if (!token) {
             throw {
               status: "login",
@@ -141,7 +173,7 @@ function refreshTokenResponseHandler(
   res: AxiosResponse<any>,
   resolve: (value: string | PromiseLike<string | null> | null) => void
 ) {
-  console.log('refreshTokenResponseHandler', res);
+  console.log("refreshTokenResponseHandler", res);
   if (res.status !== 200) {
     return resolve(null);
   }

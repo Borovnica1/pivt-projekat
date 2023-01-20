@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import BaseController from "../../common/BaseController";
 import IAddRestaurant, {
   AddRestaurantValidator,
+  IAddRestaurantServiceDto,
 } from "../restaurant/dto/IAddRestaurant.dto";
 import { DayInAWeek } from "../working-hours/Working-hoursModel.model";
 import { daysInAWeek } from "../working-hours/dto/IAddWorkingHours.dto";
@@ -74,14 +75,22 @@ export default class LocationController extends BaseController {
     const locationId = +req.params?.lId;
     const data: IAddRestaurant = req.body;
     const managerId = req.authorisation.id;
+    let restaurantData: IAddRestaurantServiceDto = {
+      location_id: locationId,
+      name: data.name,
+    };
 
     if (!AddRestaurantValidator(data)) {
       return res.status(404).send(AddRestaurantValidator.errors);
     }
 
+    if (data.description) {
+      restaurantData.description = data.description;
+    }
+    console.log("restauran dataa", restaurantData);
     this.services.restaurant.startTransaction().then(() => {
       return this.services.restaurant
-        .add({ name: data.name, location_id: locationId })
+        .add(restaurantData)
         .then(async (result) => {
           // after adding restaurant connect restaurant_id and manager_id in restaurant_manager table
 
@@ -117,7 +126,7 @@ export default class LocationController extends BaseController {
         })
         .catch((error) => {
           this.services.restaurant.rollbackChanges();
-          res.send(error.message);
+          res.status(400).send(error.message);
         });
     });
   }

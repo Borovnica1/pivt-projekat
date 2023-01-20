@@ -4,10 +4,12 @@ const ajv = new Ajv();
 
 export default interface IAddRestaurant {
   name: string;
+  description?: string;
 }
 
 interface IAddRestaurantServiceDto {
   name: string;
+  description?: string;
   location_id: number;
 }
 
@@ -21,7 +23,7 @@ const AddRestaurantValidator = ajv.compile({
     },
   },
   required: ["name"],
-  additionalProperties: false,
+  additionalProperties: true,
 });
 
 export { AddRestaurantValidator, IAddRestaurantServiceDto };

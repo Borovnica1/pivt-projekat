@@ -1,13 +1,21 @@
 import { useEffect, useReducer, useRef, useState } from "react";
-import { Button, Form, InputGroup } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Form,
+  InputGroup,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../../api/api";
+import { api, apiForm } from "../../../api/api";
 import ILocation from "../../../models/ILocation.model";
 import {
   IAddressModel,
   IDayOffModel,
   ITableModel,
 } from "../../../models/IRestaurant.model";
+import "./ManagerRestaurantAdd.sass";
 
 let nextId = 0;
 
@@ -47,11 +55,11 @@ type TRemoveAddress = {
 };
 type TRemoveDayOff = {
   type: "addRestaurantForm/removeDayOff";
-  value: IDayOffModel;
+  value: number;
 };
 type TRemoveTable = {
   type: "addRestaurantForm/removeTable";
-  value: ITableModel;
+  value: number;
 };
 
 type AddRestaurantFormAction =
@@ -69,7 +77,6 @@ function AddRestaurantFormReducer(
   oldState: IAddRestaurantFormState,
   action: AddRestaurantFormAction
 ): IAddRestaurantFormState {
-  console.log("REDUCER START!!!:", oldState);
   switch (action.type) {
     case "addRestaurantForm/setName": {
       return {
@@ -140,7 +147,7 @@ function AddRestaurantFormReducer(
         addresses: [...oldState.addresses],
         daysOff: [
           ...oldState.daysOff.filter(
-            (dayOff) => dayOff.dayOffId !== action.value.dayOffId
+            (dayOff) => dayOff.dayOffId !== action.value
           ),
         ],
         tables: [...oldState.tables],
@@ -152,9 +159,7 @@ function AddRestaurantFormReducer(
         addresses: [...oldState.addresses],
         daysOff: [...oldState.daysOff],
         tables: [
-          ...oldState.tables.filter(
-            (table) => table.tableId !== action.value.tableId
-          ),
+          ...oldState.tables.filter((table) => table.tableId !== action.value),
         ],
       };
     }
@@ -171,6 +176,10 @@ export default function ManagerRestaurantAdd() {
   const locationRef = useRef<HTMLSelectElement>(null);
   const [addStreetAndNumber, setAddStreetAndNumber] = useState<string>("");
   const [addPhoneNumber, setAddPhoneNumber] = useState<string>("");
+  const [addTableName, setAddTableName] = useState<string>("");
+  const [addTableCapacity, setAddTableCapacity] = useState<string>("");
+  const [addTableMaxDuration, setAddTableMaxDuration] = useState<string>("");
+  const [toastShow, setToastShow] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -202,71 +211,91 @@ export default function ManagerRestaurantAdd() {
       });
   };
 
-  const doAddRestaurant = () => {};
-  /* const doAddRestaurant = () => {
+  const doAddRestaurant = () => {
     api(
       "post",
-      "/api/category/" + categoryId + "/item",
-      "administrator",
-      formState
+      "/api/location/" + formState.locationId + "/restaurant",
+      "manager",
+      {
+        name: formState.name,
+        description: formState.description,
+      }
     )
       .then((res) => {
         if (res.status !== "ok") {
           throw new Error(
-            "Could not add this item! Reason: " +
-              res?.data
-                ?.map(
-                  (error: any) => error?.instancePath + " " + error?.message
-                )
-                .join(", ")
+            "Could not add this Restaurant! Reason: " + res?.data
           );
         }
-
-        return res.data;
+        return res.data.restaurantId;
       })
-      .then((item) => {
-        if (!item?.itemId) {
-          throw new Error("Could not fetch new item data!");
-        }
-
-        return item;
+      .then(async (restaurantId) => {
+        Promise.all([
+          ...formState.addresses.map((address) =>
+            api(
+              "post",
+              "/api/restaurant/" + restaurantId + "/address",
+              "manager",
+              {
+                streetAndNumber: address.streetAndNumber,
+                phoneNumber: "+" + address.phoneNumber,
+              }
+            )
+          ),
+          ...formState.tables.map((table) =>
+            api(
+              "post",
+              "/api/restaurant/" + restaurantId + "/table",
+              "manager",
+              {
+                tableName: table.tableName,
+                tableCapacity: +table.tableCapacity,
+                tableMaxReservationDuration: +table.tableMaxReservationDuration,
+              }
+            )
+          ),
+        ]);
+        return restaurantId;
       })
-      .then((item) => {
+      .then((restaurantId) => {
         if (!file) {
           throw new Error("No item photo selected!");
         }
 
         return {
           file,
-          item,
+          restaurantId,
         };
       })
-      .then(({ file, item }) => {
-        const data = new FormData();
-        data.append("image", file);
+      .then(({ file, restaurantId }) => {
+        var bodyFormData = new FormData();
+        bodyFormData.append("image", file);
         return apiForm(
           "post",
-          "/api/category/" + categoryId + "/item/" + item?.itemId + "/photo",
-          "administrator",
-          data
+          "/api/restaurant/" + restaurantId + "/photo",
+          "manager",
+          bodyFormData
         );
       })
       .then((res) => {
         if (res.status !== "ok") {
-          throw new Error("Could not upload item photo!");
+          throw new Error("Could not upload restaurant photo" + res.data);
         }
-
         return res.data;
       })
-      .then(() => {
-        navigate("/admin/dashboard/category/" + categoryId + "/items/list", {
-          replace: true,
-        });
+      .then((res) => {
+        setToastShow(true);
+        console.log("ide li toast????");
+        setTimeout(() => {
+          navigate("/manager/dashboard/restaurant/list", {
+            replace: true,
+          });
+        }, 10000);
       })
       .catch((error) => {
         setErrorMessage(error?.message ?? "Unknown error!");
       });
-  }; */
+  };
 
   useEffect(() => {
     loadLocations();
@@ -277,7 +306,7 @@ export default function ManagerRestaurantAdd() {
       <div className="card">
         <div className="card-body">
           <div className="card-title">
-            <h1 className="h5">Add new Restaurant</h1>
+            <h1 className="h5">Add a new Restaurant</h1>
           </div>
           <div className="card-text">
             {errorMessage && (
@@ -349,7 +378,10 @@ export default function ManagerRestaurantAdd() {
               <label>Addresses</label>
               {formState.addresses?.map((address) => {
                 return (
-                  <InputGroup className="mb-3">
+                  <InputGroup
+                    className="mb-3"
+                    key={"address" + address.addressId}
+                  >
                     <InputGroup.Text id="basic-addon1">
                       Street and number
                     </InputGroup.Text>
@@ -403,7 +435,7 @@ export default function ManagerRestaurantAdd() {
                   Phone Number
                 </InputGroup.Text>
                 <Form.Control
-                  placeholder="Phone Number"
+                  placeholder="+13156059728"
                   aria-label="Phone Number"
                   aria-describedby="basic-addon1"
                   value={addPhoneNumber}
@@ -442,6 +474,133 @@ export default function ManagerRestaurantAdd() {
             </div>
 
             <div className="form-froup mb-3">
+              <label>Tables</label>
+              {formState.tables?.map((table) => {
+                return (
+                  <InputGroup className="mb-3" key={"table" + table.tableId}>
+                    <InputGroup.Text id="basic-addon1">Name</InputGroup.Text>
+                    <Form.Control
+                      readOnly
+                      placeholder={table.tableName}
+                      aria-label="tableName"
+                      aria-describedby="basic-addon1"
+                    />
+                    <InputGroup.Text id="basic-addon1">
+                      Capacity
+                    </InputGroup.Text>
+                    <Form.Control
+                      readOnly
+                      placeholder={table.tableCapacity}
+                      aria-label="tableCapacity"
+                      aria-describedby="basic-addon1"
+                    />
+                    <InputGroup.Text id="basic-addon1">
+                      Max Reservation Time
+                    </InputGroup.Text>
+                    <Form.Control
+                      readOnly
+                      placeholder={table.tableMaxReservationDuration + ""}
+                      aria-label="tableDuration"
+                      aria-describedby="basic-addon1"
+                    />
+                    <InputGroup.Text
+                      id="basic-addon1"
+                      style={{ padding: "0px" }}
+                    >
+                      <Button
+                        value={table.tableId}
+                        variant="danger"
+                        onClick={(e) =>
+                          dispatchFormStateAction({
+                            type: "addRestaurantForm/removeTable",
+                            value: +(e.target as HTMLButtonElement).value,
+                          })
+                        }
+                      >
+                        Remove
+                      </Button>
+                    </InputGroup.Text>
+                  </InputGroup>
+                );
+              })}
+              <InputGroup className="mb-3">
+                <InputGroup.Text id="basic-addon1">Name</InputGroup.Text>
+                <Form.Control
+                  placeholder={"Table Name"}
+                  aria-label="tableName"
+                  aria-describedby="basic-addon1"
+                  onChange={(e) => setAddTableName(e.target.value)}
+                />
+                <InputGroup.Text id="basic-addon1">Capacity</InputGroup.Text>
+                <Form.Control
+                  placeholder={"6"}
+                  aria-label="tableCapacity"
+                  aria-describedby="basic-addon1"
+                  onChange={(e) => setAddTableCapacity(e.target.value)}
+                  type="number"
+                />
+                <InputGroup.Text id="basic-addon1">
+                  Max Reservation Time (step: 30)
+                </InputGroup.Text>
+                <Form.Control
+                  placeholder={"30"}
+                  aria-label="tableDuration"
+                  aria-describedby="basic-addon1"
+                  value={addTableMaxDuration}
+                  onChange={(e) => {
+                    setAddTableMaxDuration(e.target.value);
+                    setTimeout(() => {
+                      setAddTableMaxDuration(
+                        +e.target.value < 30
+                          ? "30"
+                          : +e.target.value - (+e.target.value % 30) + ""
+                      );
+                    }, 1000);
+                  }}
+                  type="number"
+                  min="30"
+                  step="30"
+                />
+                <InputGroup.Text id="basic-addon1" style={{ padding: "0px" }}>
+                  <Button
+                    disabled={
+                      addTableName === "" ||
+                      addTableCapacity === "" ||
+                      +addTableMaxDuration % 30 !== 0
+                    }
+                    variant="success"
+                    onClick={(e) =>
+                      dispatchFormStateAction({
+                        type: "addRestaurantForm/addTable",
+                        value: {
+                          tableId: nextId++,
+                          restaurantId: nextId++,
+                          tableName: addTableName,
+                          tableCapacity: addTableCapacity,
+                          tableMaxReservationDuration: +addTableMaxDuration,
+                        },
+                      })
+                    }
+                  >
+                    Add
+                  </Button>
+                </InputGroup.Text>
+                <InputGroup.Text id="basic-addon1" style={{ padding: "0px" }}>
+                  <Button
+                    variant="danger"
+                    onClick={(e) => {
+                      setAddTableName("");
+                      setAddTableCapacity("");
+                      setAddTableMaxDuration("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </InputGroup.Text>
+              </InputGroup>
+            </div>
+
+            <div className="form-froup mb-3">
               <label>Restaurant image</label>
               <div className="input-group">
                 <input
@@ -461,12 +620,30 @@ export default function ManagerRestaurantAdd() {
               <button
                 className="btn btn-primary"
                 onClick={() => doAddRestaurant()}
+                disabled={formState.locationId === 0}
               >
                 Add restaurant
               </button>
             </div>
           </div>
         </div>
+        <ToastContainer className="p-3" position="bottom-center">
+          <Toast
+            onClose={() => setToastShow(false)}
+            show={toastShow}
+            delay={3000}
+            autohide
+          >
+            <Toast.Header>
+              <strong className="me-auto">Notification</strong>
+            </Toast.Header>
+            <Toast.Body>
+              <Alert variant={"success"}>
+                Restaurant created successfully!
+              </Alert>
+            </Toast.Body>
+          </Toast>
+        </ToastContainer>
       </div>
     </div>
   );

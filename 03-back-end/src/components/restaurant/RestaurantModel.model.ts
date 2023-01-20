@@ -6,6 +6,7 @@ import { DayOffModel } from './DayOffService.service copy';
 class RestaurantModel {
   restaurantId: number;
   name: string;
+  description: string;
 
   photos?: PhotoModel[];
   workingHours?: WorkingHoursModel[];

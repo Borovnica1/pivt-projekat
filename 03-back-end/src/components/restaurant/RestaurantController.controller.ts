@@ -469,7 +469,7 @@ class RestaurantController extends BaseController {
           .add({
             restaurant_id: restaurantId,
             phone_number: data.phoneNumber,
-            place: data.place,
+            place: data?.place || undefined,
             street_and_number: data.streetAndNumber,
           })
           .then((result) => {
