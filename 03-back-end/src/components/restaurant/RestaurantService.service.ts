@@ -30,7 +30,7 @@ class RestaurantService extends BaseService<
 
     restaurant.restaurantId = +data?.restaurant_id;
     restaurant.name = data?.name;
-    restaurant.description = data?.description;
+    restaurant.description = data?.description || "";
 
     if (options.loadPhotos) {
       const restaurantPhotos = await this.services.photo.getAllByRestaurantId(

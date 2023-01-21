@@ -935,6 +935,34 @@ class RestaurantController extends BaseController {
         res.status(500).send(error?.message);
       });
   }
+
+  async getAllRestaurantsOwnedByManagerId(req: Request, res: Response) {
+    const managerUserId = +req.authorisation.id;
+
+    try {
+      if (req.authorisation.role === "manager") {
+        const restaurantsOwnedByManager =
+          await this.services.restaurant.getRestaurantsByManagerId(
+            managerUserId
+          );
+        const resturantIds = restaurantsOwnedByManager.map(
+          (restaurant) => restaurant.restaurantId
+        );
+
+        const allRestaurants = await Promise.all(
+          resturantIds.map((restaurantId) =>
+            this.services.restaurant.getById(restaurantId, { loadPhotos: true })
+          )
+        );
+
+        res.send(allRestaurants);
+      } else {
+        throw { message: "Wrong role!" };
+      }
+    } catch (error) {
+      res.send(error);
+    }
+  }
 }
 
 export default RestaurantController;

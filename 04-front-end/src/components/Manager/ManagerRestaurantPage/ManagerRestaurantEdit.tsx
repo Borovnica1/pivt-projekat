@@ -7,7 +7,7 @@ import {
   Toast,
   ToastContainer,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { api, apiForm } from "../../../api/api";
 import ILocation from "../../../models/ILocation.model";
 import {
@@ -15,7 +15,9 @@ import {
   IDayOffModel,
   ITableModel,
 } from "../../../models/IRestaurant.model";
-import "./ManagerRestaurantAdd.sass";
+import IWorkingHours from "../../../models/IWorkingHours.model";
+import "./ManagerRestaurantEdit.sass";
+import TimePicker from "react-bootstrap-time-picker";
 
 let nextId = 0;
 
@@ -24,42 +26,59 @@ interface IAddRestaurantFormState {
   description: string;
   locationId: number;
   addresses: IAddressModel[];
+  workingHours: IWorkingHours[];
   daysOff: IDayOffModel[];
   tables: ITableModel[];
 }
 
-type TSetName = { type: "addRestaurantForm/setName"; value: string };
+type TSetName = { type: "editRestaurantForm/setName"; value: string };
 type TSetDescription = {
-  type: "addRestaurantForm/setDescription";
+  type: "editRestaurantForm/setDescription";
   value: string;
 };
 type TSetLocation = {
-  type: "addRestaurantForm/setLocation";
+  type: "editRestaurantForm/setLocation";
   value: number;
 };
 type TAddAddress = {
-  type: "addRestaurantForm/addAddress";
+  type: "editRestaurantForm/addAddress";
   value: IAddressModel;
 };
 type TAddDayOff = {
-  type: "addRestaurantForm/addDayOff";
+  type: "editRestaurantForm/addDayOff";
   value: IDayOffModel;
 };
 type TAddTable = {
-  type: "addRestaurantForm/addTable";
+  type: "editRestaurantForm/addTable";
   value: ITableModel;
 };
 type TRemoveAddress = {
-  type: "addRestaurantForm/removeAddress";
+  type: "editRestaurantForm/removeAddress";
   value: number;
 };
 type TRemoveDayOff = {
-  type: "addRestaurantForm/removeDayOff";
+  type: "editRestaurantForm/removeDayOff";
   value: number;
 };
 type TRemoveTable = {
-  type: "addRestaurantForm/removeTable";
+  type: "editRestaurantForm/removeTable";
   value: number;
+};
+type TEditAddress = {
+  type: "editRestaurantForm/editAddress";
+  value: { addressId: number; newAddress: IAddressModel };
+};
+type TEditDayOff = {
+  type: "editRestaurantForm/editDayOff";
+  value: { dayOffId: number; newDayOff: IDayOffModel };
+};
+type TEditTable = {
+  type: "editRestaurantForm/editTable";
+  value: { tableId: number; newTable: ITableModel };
+};
+type TEditWorkingHours = {
+  type: "editRestaurantForm/editWorkingHours";
+  value: { workingHourId: number; newWorkingHour: IWorkingHours };
 };
 
 type AddRestaurantFormAction =
@@ -71,65 +90,77 @@ type AddRestaurantFormAction =
   | TAddTable
   | TRemoveAddress
   | TRemoveDayOff
-  | TRemoveTable;
+  | TRemoveTable
+  | { type: "initialStateReady"; value: IAddRestaurantFormState }
+  | TEditAddress
+  | TEditDayOff
+  | TEditTable
+  | TEditWorkingHours;
 
 function AddRestaurantFormReducer(
   oldState: IAddRestaurantFormState,
   action: AddRestaurantFormAction
 ): IAddRestaurantFormState {
+  console.log("AddRestaurantFormReducer:  ", oldState);
   switch (action.type) {
-    case "addRestaurantForm/setName": {
+    case "editRestaurantForm/setName": {
       return {
         ...oldState,
         addresses: [...oldState.addresses],
         daysOff: [...oldState.daysOff],
+        workingHours: [...oldState.workingHours],
         tables: [...oldState.tables],
         name: action.value,
       };
     }
-    case "addRestaurantForm/setDescription": {
+    case "editRestaurantForm/setDescription": {
       return {
         ...oldState,
         addresses: [...oldState.addresses],
         daysOff: [...oldState.daysOff],
+        workingHours: [...oldState.workingHours],
         tables: [...oldState.tables],
         description: action.value,
       };
     }
-    case "addRestaurantForm/setLocation": {
+    case "editRestaurantForm/setLocation": {
       return {
         ...oldState,
         addresses: [...oldState.addresses],
         daysOff: [...oldState.daysOff],
+        workingHours: [...oldState.workingHours],
         tables: [...oldState.tables],
         locationId: action.value,
       };
     }
-    case "addRestaurantForm/addAddress": {
+    case "editRestaurantForm/addAddress": {
       return {
         ...oldState,
         addresses: [...oldState.addresses, action.value],
         daysOff: [...oldState.daysOff],
+        workingHours: [...oldState.workingHours],
         tables: [...oldState.tables],
       };
     }
-    case "addRestaurantForm/addDayOff": {
+    case "editRestaurantForm/addDayOff": {
       return {
         ...oldState,
         addresses: [...oldState.addresses],
         daysOff: [...oldState.daysOff, action.value],
+        workingHours: [...oldState.workingHours],
         tables: [...oldState.tables],
       };
     }
-    case "addRestaurantForm/addTable": {
+    case "editRestaurantForm/addTable": {
       return {
         ...oldState,
         addresses: [...oldState.addresses],
         daysOff: [...oldState.daysOff],
+        workingHours: [...oldState.workingHours],
         tables: [...oldState.tables, action.value],
       };
     }
-    case "addRestaurantForm/removeAddress": {
+    case "editRestaurantForm/removeAddress": {
       return {
         ...oldState,
         addresses: [
@@ -137,14 +168,16 @@ function AddRestaurantFormReducer(
             (address) => address.addressId !== action.value
           ),
         ],
+        workingHours: [...oldState.workingHours],
         daysOff: [...oldState.daysOff],
         tables: [...oldState.tables],
       };
     }
-    case "addRestaurantForm/removeDayOff": {
+    case "editRestaurantForm/removeDayOff": {
       return {
         ...oldState,
         addresses: [...oldState.addresses],
+        workingHours: [...oldState.workingHours],
         daysOff: [
           ...oldState.daysOff.filter(
             (dayOff) => dayOff.dayOffId !== action.value
@@ -153,15 +186,79 @@ function AddRestaurantFormReducer(
         tables: [...oldState.tables],
       };
     }
-    case "addRestaurantForm/removeTable": {
+    case "editRestaurantForm/removeTable": {
       return {
         ...oldState,
         addresses: [...oldState.addresses],
+        workingHours: [...oldState.workingHours],
         daysOff: [...oldState.daysOff],
         tables: [
           ...oldState.tables.filter((table) => table.tableId !== action.value),
         ],
       };
+    }
+    case "editRestaurantForm/editAddress": {
+      return {
+        ...oldState,
+        addresses: [
+          ...oldState.addresses.map((address) =>
+            address.addressId === action.value.addressId
+              ? action.value.newAddress
+              : address
+          ),
+        ],
+        workingHours: [...oldState.workingHours],
+        daysOff: [...oldState.daysOff],
+        tables: [...oldState.tables],
+      };
+    }
+    case "editRestaurantForm/editDayOff": {
+      return {
+        ...oldState,
+        addresses: [...oldState.addresses],
+        workingHours: [...oldState.workingHours],
+        daysOff: [
+          ...oldState.daysOff.map((dayOff) =>
+            dayOff.dayOffId === action.value.dayOffId
+              ? action.value.newDayOff
+              : dayOff
+          ),
+        ],
+        tables: [...oldState.tables],
+      };
+    }
+    case "editRestaurantForm/editTable": {
+      return {
+        ...oldState,
+        addresses: [...oldState.addresses],
+        daysOff: [...oldState.daysOff],
+        workingHours: [...oldState.workingHours],
+        tables: [
+          ...oldState.tables.map((table) =>
+            table.tableId === action.value.tableId
+              ? action.value.newTable
+              : table
+          ),
+        ],
+      };
+    }
+    case "editRestaurantForm/editWorkingHours": {
+      return {
+        ...oldState,
+        addresses: [...oldState.addresses],
+        daysOff: [...oldState.daysOff],
+        workingHours: [
+          ...oldState.workingHours.map((workingHour) =>
+            workingHour.workingHoursId === action.value.workingHourId
+              ? action.value.newWorkingHour
+              : workingHour
+          ),
+        ],
+        tables: [...oldState.tables],
+      };
+    }
+    case "initialStateReady": {
+      return { ...action.value };
     }
 
     default:
@@ -169,7 +266,47 @@ function AddRestaurantFormReducer(
   }
 }
 
-export default function ManagerRestaurantAdd() {
+async function createInitialState(
+  restaurantId: number
+): Promise<IAddRestaurantFormState> {
+  const restaurant = await api(
+    "get",
+    "/api/restaurant/" + restaurantId,
+    "manager"
+  ).then((res) => {
+    if (res.status === "ok") {
+      return res.data;
+    } else {
+      return {
+        name: "",
+        description: "",
+        locationId: 0,
+        addresses: [],
+        workingHours: [],
+        daysOff: [],
+        tables: [],
+      };
+    }
+  });
+  console.log("RESTAURANT 505:", restaurant);
+  // make sure our nextId is biggest id so we dont have duplicate ids of some items in our state!!
+  nextId =
+    1 +
+    Math.max(
+      nextId,
+      ...restaurant.addresses.map(
+        (address: IAddressModel) => address.addressId
+      ),
+      ...restaurant.workingHours.map(
+        (workingHour: IWorkingHours) => workingHour.workingHoursId
+      ),
+      ...restaurant.daysOff.map((dayOff: IDayOffModel) => dayOff.dayOffId),
+      ...restaurant.tables.map((table: ITableModel) => table.tableId)
+    );
+  return restaurant;
+}
+
+export default function ManagerRestaurantEdit() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [locations, setLocations] = useState<ILocation[]>([]);
   const [file, setFile] = useState<File>();
@@ -182,6 +319,7 @@ export default function ManagerRestaurantAdd() {
   const [toastShow, setToastShow] = useState<boolean>(false);
 
   const navigate = useNavigate();
+  const params = useParams();
 
   const [formState, dispatchFormStateAction] = useReducer(
     AddRestaurantFormReducer,
@@ -190,6 +328,7 @@ export default function ManagerRestaurantAdd() {
       description: "",
       locationId: 0,
       addresses: [],
+      workingHours: [],
       daysOff: [],
       tables: [],
     }
@@ -298,6 +437,9 @@ export default function ManagerRestaurantAdd() {
 
   useEffect(() => {
     loadLocations();
+    createInitialState(Number(params?.rid)).then((res) => {
+      dispatchFormStateAction({ type: "initialStateReady", value: res });
+    });
   }, []);
 
   return (
@@ -305,7 +447,7 @@ export default function ManagerRestaurantAdd() {
       <div className="card">
         <div className="card-body">
           <div className="card-title">
-            <h1 className="h5">Add a new Restaurant</h1>
+            <h1 className="h5">Edit restaurant</h1>
           </div>
           <div className="card-text">
             {errorMessage && (
@@ -321,7 +463,7 @@ export default function ManagerRestaurantAdd() {
                   value={formState.name}
                   onChange={(e) =>
                     dispatchFormStateAction({
-                      type: "addRestaurantForm/setName",
+                      type: "editRestaurantForm/setName",
                       value: e.target.value,
                     })
                   }
@@ -338,7 +480,7 @@ export default function ManagerRestaurantAdd() {
                   value={formState.description}
                   onChange={(e) =>
                     dispatchFormStateAction({
-                      type: "addRestaurantForm/setDescription",
+                      type: "editRestaurantForm/setDescription",
                       value: e.target.value,
                     })
                   }
@@ -353,11 +495,12 @@ export default function ManagerRestaurantAdd() {
                 ref={locationRef}
                 onChange={() =>
                   dispatchFormStateAction({
-                    type: "addRestaurantForm/setLocation",
+                    type: "editRestaurantForm/setLocation",
                     value: Number(locationRef?.current?.value),
                   })
                 }
                 required
+                value={formState.locationId}
               >
                 <option>Lokacije</option>
                 {locations.map((location) => {
@@ -385,19 +528,45 @@ export default function ManagerRestaurantAdd() {
                       Street and number
                     </InputGroup.Text>
                     <Form.Control
-                      readOnly
                       placeholder={address.streetAndNumber}
                       aria-label="Street and number"
                       aria-describedby="basic-addon1"
+                      value={address.streetAndNumber}
+                      onChange={(e) =>
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editAddress",
+                          value: {
+                            addressId: address.addressId,
+                            newAddress: {
+                              addressId: address.addressId,
+                              streetAndNumber: e.target.value,
+                              phoneNumber: address.phoneNumber,
+                            },
+                          },
+                        })
+                      }
                     />
                     <InputGroup.Text id="basic-addon1">
                       Phone Number
                     </InputGroup.Text>
                     <Form.Control
-                      readOnly
                       placeholder={address.phoneNumber}
                       aria-label="Phone Number"
                       aria-describedby="basic-addon1"
+                      value={address.phoneNumber}
+                      onChange={(e) =>
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editAddress",
+                          value: {
+                            addressId: address.addressId,
+                            newAddress: {
+                              addressId: address.addressId,
+                              streetAndNumber: address.streetAndNumber,
+                              phoneNumber: e.target.value,
+                            },
+                          },
+                        })
+                      }
                     />
                     <InputGroup.Text
                       id="basic-addon1"
@@ -408,7 +577,7 @@ export default function ManagerRestaurantAdd() {
                         variant="danger"
                         onClick={(e) =>
                           dispatchFormStateAction({
-                            type: "addRestaurantForm/removeAddress",
+                            type: "editRestaurantForm/removeAddress",
                             value: +(e.target as HTMLButtonElement).value,
                           })
                         }
@@ -419,6 +588,7 @@ export default function ManagerRestaurantAdd() {
                   </InputGroup>
                 );
               })}
+              <label style={{ display: "block" }}>Add a new address</label>
               <InputGroup className="mb-3">
                 <InputGroup.Text id="basic-addon1">
                   Street and number
@@ -446,7 +616,7 @@ export default function ManagerRestaurantAdd() {
                     variant="success"
                     onClick={(e) =>
                       dispatchFormStateAction({
-                        type: "addRestaurantForm/addAddress",
+                        type: "editRestaurantForm/addAddress",
                         value: {
                           addressId: nextId++,
                           phoneNumber: addPhoneNumber,
@@ -472,6 +642,111 @@ export default function ManagerRestaurantAdd() {
               </InputGroup>
             </div>
 
+            <div className="form-froup mb-3 workingHours">
+              <label>Working Hours</label>
+              {formState.workingHours.map((workingHour) => {
+                return (
+                  <InputGroup
+                    className="mb-3"
+                    key={"workingHour-" + workingHour.workingHoursId}
+                  >
+                    <InputGroup.Text id="basic-addon1">
+                      {workingHour.day + ": "}
+                    </InputGroup.Text>
+                    <InputGroup.Text id="basic-addon1">
+                      Opening Hours
+                    </InputGroup.Text>
+                    <TimePicker
+                      format={24}
+                      step={30}
+                      value={workingHour.openingHours}
+                      onChange={(time: any) => {
+                        console.log(
+                          "opening",
+                          time,
+                          workingHour.closingHours,
+                          +workingHour.closingHours.slice(0, 2) * 3600 +
+                            +workingHour.closingHours.slice(3, 5) * 60,
+                          ("0" + Math.floor(time / 3600)).slice(-2) +
+                            ":" +
+                            ("0" + (time % 3600) / 60).slice(-2)
+                        );
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editWorkingHours",
+                          value: {
+                            workingHourId: workingHour.workingHoursId,
+                            newWorkingHour: {
+                              ...workingHour,
+                              openingHours:
+                                time <
+                                +workingHour.closingHours.slice(0, 2) * 3600 +
+                                  +workingHour.closingHours.slice(3, 5) * 60
+                                  ? ("0" + Math.floor(time / 3600)).slice(-2) +
+                                    ":" +
+                                    ("0" + (time % 3600) / 60).slice(-2)
+                                  : workingHour.closingHours,
+                            },
+                          },
+                        });
+                      }}
+                    />
+                    <InputGroup.Text id="basic-addon1">
+                      Closing Hours
+                    </InputGroup.Text>
+                    <TimePicker
+                      format={24}
+                      step={30}
+                      value={workingHour.closingHours}
+                      onChange={(time: any) => {
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editWorkingHours",
+                          value: {
+                            workingHourId: workingHour.workingHoursId,
+                            newWorkingHour: {
+                              ...workingHour,
+                              closingHours:
+                                time >
+                                +workingHour.openingHours.slice(0, 2) * 3600 +
+                                  +workingHour.openingHours.slice(3, 5) * 60
+                                  ? ("0" + Math.floor(time / 3600)).slice(-2) +
+                                    ":" +
+                                    ("0" + (time % 3600) / 60).slice(-2)
+                                  : workingHour.openingHours,
+                            },
+                          },
+                        });
+                      }}
+                    />
+                    <InputGroup.Text
+                      id="basic-addon1"
+                      style={{ padding: "0px" }}
+                    >
+                      <Alert variant={!workingHour.open ? "danger" : "success"}>
+                        Status: {!workingHour.open ? "Closed" : "Open"}
+                      </Alert>
+                    </InputGroup.Text>
+                    <Button
+                      variant={workingHour.open ? "danger" : "success"}
+                      onClick={() =>
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editWorkingHours",
+                          value: {
+                            workingHourId: workingHour.workingHoursId,
+                            newWorkingHour: {
+                              ...workingHour,
+                              open: workingHour.open ? 0 : 1,
+                            },
+                          },
+                        })
+                      }
+                    >
+                      {workingHour.open ? "Close" : "Open"}
+                    </Button>
+                  </InputGroup>
+                );
+              })}
+            </div>
+
             <div className="form-froup mb-3">
               <label>Tables</label>
               {formState.tables?.map((table) => {
@@ -479,28 +754,79 @@ export default function ManagerRestaurantAdd() {
                   <InputGroup className="mb-3" key={"table" + table.tableId}>
                     <InputGroup.Text id="basic-addon1">Name</InputGroup.Text>
                     <Form.Control
-                      readOnly
                       placeholder={table.tableName}
                       aria-label="tableName"
                       aria-describedby="basic-addon1"
+                      value={table.tableName}
+                      onChange={(e) =>
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editTable",
+                          value: {
+                            tableId: table.tableId,
+                            newTable: {
+                              ...table,
+                              tableName: e.target.value,
+                            },
+                          },
+                        })
+                      }
                     />
                     <InputGroup.Text id="basic-addon1">
                       Capacity
                     </InputGroup.Text>
                     <Form.Control
-                      readOnly
                       placeholder={table.tableCapacity}
                       aria-label="tableCapacity"
                       aria-describedby="basic-addon1"
+                      value={table.tableCapacity}
+                      onChange={(e) =>
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editTable",
+                          value: {
+                            tableId: table.tableId,
+                            newTable: {
+                              ...table,
+                              tableCapacity: e.target.value,
+                            },
+                          },
+                        })
+                      }
                     />
                     <InputGroup.Text id="basic-addon1">
                       Max Reservation Time
                     </InputGroup.Text>
                     <Form.Control
-                      readOnly
                       placeholder={table.tableMaxReservationDuration + ""}
                       aria-label="tableDuration"
                       aria-describedby="basic-addon1"
+                      value={table.tableMaxReservationDuration}
+                      onChange={(e) => {
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/editTable",
+                          value: {
+                            tableId: table.tableId,
+                            newTable: {
+                              ...table,
+                              tableMaxReservationDuration: +e.target.value,
+                            },
+                          },
+                        });
+                        setTimeout(() => {
+                          dispatchFormStateAction({
+                            type: "editRestaurantForm/editTable",
+                            value: {
+                              tableId: table.tableId,
+                              newTable: {
+                                ...table,
+                                tableMaxReservationDuration:
+                                  +e.target.value < 30
+                                    ? 30
+                                    : +e.target.value - (+e.target.value % 30),
+                              },
+                            },
+                          });
+                        }, 1000);
+                      }}
                     />
                     <InputGroup.Text
                       id="basic-addon1"
@@ -511,7 +837,7 @@ export default function ManagerRestaurantAdd() {
                         variant="danger"
                         onClick={(e) =>
                           dispatchFormStateAction({
-                            type: "addRestaurantForm/removeTable",
+                            type: "editRestaurantForm/removeTable",
                             value: +(e.target as HTMLButtonElement).value,
                           })
                         }
@@ -522,6 +848,8 @@ export default function ManagerRestaurantAdd() {
                   </InputGroup>
                 );
               })}
+              <label style={{ display: "block" }}>Add a new table</label>
+
               <InputGroup className="mb-3">
                 <InputGroup.Text id="basic-addon1">Name</InputGroup.Text>
                 <Form.Control
@@ -570,10 +898,10 @@ export default function ManagerRestaurantAdd() {
                     variant="success"
                     onClick={(e) =>
                       dispatchFormStateAction({
-                        type: "addRestaurantForm/addTable",
+                        type: "editRestaurantForm/addTable",
                         value: {
                           tableId: nextId++,
-                          restaurantId: nextId++,
+                          restaurantId: Number(params?.rid) || 0,
                           tableName: addTableName,
                           tableCapacity: addTableCapacity,
                           tableMaxReservationDuration: +addTableMaxDuration,
@@ -621,7 +949,7 @@ export default function ManagerRestaurantAdd() {
                 onClick={() => doAddRestaurant()}
                 disabled={formState.locationId === 0}
               >
-                Add restaurant
+                Save changes
               </button>
             </div>
           </div>

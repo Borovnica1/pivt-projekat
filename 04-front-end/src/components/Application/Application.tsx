@@ -22,6 +22,8 @@ import ProfilePage from "../Pages/ProfilePage/ProfilePage";
 import ManagerDashboard from "../Manager/Dashboard/ManagerDashboard";
 import ManagerReservationsPage from "../Manager/ManagerReservationsPage/ManagerReservationsPage";
 import ManagerRestaurantAdd from "../Manager/ManagerRestaurantPage/ManagerRestaurantAdd";
+import { ManagerRestaurantList } from "../Manager/ManagerRestaurantPage/ManagerRestaurantList";
+import ManagerRestaurantEdit from "../Manager/ManagerRestaurantPage/ManagerRestaurantEdit";
 
 function Application() {
   return (
@@ -60,10 +62,18 @@ function Application() {
               element={<ManagerRestaurantAdd />}
             />
             <Route
+              path="/manager/dashboard/restaurant/list"
+              element={<ManagerRestaurantList />}
+            />
+            <Route
+              path="/manager/restaurant/:rid/edit"
+              element={<ManagerRestaurantEdit />}
+            />
+
+            <Route
               path="/manager/dashboard/reservations/:filter"
               element={<ManagerReservationsPage />}
             />
-
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route
               path="/admin/dashboard/location/list"
