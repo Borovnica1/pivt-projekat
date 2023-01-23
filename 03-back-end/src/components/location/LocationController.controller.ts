@@ -110,6 +110,7 @@ export default class LocationController extends BaseController {
               return this.services.workingHours.add({
                 day: day as DayInAWeek,
                 open: 0,
+                closing_hours: "23:30:00",
                 restaurant_id: result.restaurantId,
               });
             })

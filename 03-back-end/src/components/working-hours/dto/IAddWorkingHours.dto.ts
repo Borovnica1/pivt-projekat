@@ -16,16 +16,16 @@ const daysInAWeek = [
 export default interface IAddWorkingHours {
   day: keyof typeof DayInAWeek;
   open: number;
-  opening_hours?: Date;
-  closing_hours?: Date;
+  opening_hours?: string;
+  closing_hours?: string;
   restaurant_id: number;
 }
 
 interface IAddWorkingHoursServiceDto {
   day: keyof typeof DayInAWeek;
   open: number;
-  openingHours?: Date;
-  closingHours?: Date;
+  openingHours?: string;
+  closingHours?: string;
 }
 
 const AddWorkingHoursValidator = ajv.compile({

@@ -18,6 +18,8 @@ import {
 import IWorkingHours from "../../../models/IWorkingHours.model";
 import "./ManagerRestaurantEdit.sass";
 import TimePicker from "react-bootstrap-time-picker";
+import DatePicker from "react-datepicker";
+import { addDays, subDays } from "date-fns";
 
 let nextId = 0;
 
@@ -316,6 +318,8 @@ export default function ManagerRestaurantEdit() {
   const [addTableName, setAddTableName] = useState<string>("");
   const [addTableCapacity, setAddTableCapacity] = useState<string>("");
   const [addTableMaxDuration, setAddTableMaxDuration] = useState<string>("");
+  const [addDayOffDate, setAddDayOffDate] = useState<Date | null>(null);
+  const [addDayOffReason, setAddDayOffReason] = useState<string>("");
   const [toastShow, setToastShow] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -350,7 +354,7 @@ export default function ManagerRestaurantEdit() {
       });
   };
 
-  const doAddRestaurant = () => {
+  const doEditRestaurant = () => {
     api(
       "post",
       "/api/location/" + formState.locationId + "/restaurant",
@@ -927,6 +931,145 @@ export default function ManagerRestaurantEdit() {
               </InputGroup>
             </div>
 
+            <div className="form-froup mb-3 dayOff">
+              <label style={{ display: "block" }}>Days off</label>
+              {formState.daysOff?.map((dayOff) => {
+                return (
+                  <Alert variant="warning">
+                    <InputGroup
+                      className="mb-3"
+                      key={"dayOff-" + dayOff.dayOffId}
+                    >
+                      <label id="basic-addon1">Date:</label>
+                      <DatePicker
+                        className="react-date-picker"
+                        selected={new Date(dayOff.dayOffDate)}
+                        onChange={(date: Date) => {
+                          dispatchFormStateAction({
+                            type: "editRestaurantForm/editDayOff",
+                            value: {
+                              dayOffId: dayOff.dayOffId,
+                              newDayOff: {
+                                ...dayOff,
+                                dayOffDate: date,
+                              },
+                            },
+                          });
+                        }}
+                        includeDateIntervals={[
+                          {
+                            start: subDays(new Date(), 1),
+                            end: addDays(new Date(), 30),
+                          },
+                        ]}
+                        excludeDates={formState.daysOff?.map(
+                          (dayOff) => new Date(dayOff.dayOffDate)
+                        )}
+                        placeholderText="Izaberite datum"
+                      />
+                      <label id="basic-addon1">Razlog:</label>
+                      <Form.Control
+                        as="textarea"
+                        rows={5}
+                        placeholder={dayOff.reason}
+                        aria-label="Day off reason"
+                        aria-describedby="basic-addon1"
+                        value={dayOff.reason}
+                        onChange={(e) =>
+                          dispatchFormStateAction({
+                            type: "editRestaurantForm/editDayOff",
+                            value: {
+                              dayOffId: dayOff.dayOffId,
+                              newDayOff: {
+                                ...dayOff,
+                                reason: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                      />
+
+                      <Button
+                        value={dayOff.dayOffId}
+                        variant="danger"
+                        onClick={(e) =>
+                          dispatchFormStateAction({
+                            type: "editRestaurantForm/removeDayOff",
+                            value: +(e.target as HTMLButtonElement).value,
+                          })
+                        }
+                      >
+                        Remove
+                      </Button>
+                    </InputGroup>
+                  </Alert>
+                );
+              })}
+
+              <Alert variant="warning">
+                <InputGroup className="mb-3">
+                  <label id="basic-addon1">Date:</label>
+                  <DatePicker
+                    className="react-date-picker"
+                    selected={addDayOffDate}
+                    onChange={(date: Date) => {
+                      setAddDayOffDate(date);
+                    }}
+                    includeDateIntervals={[
+                      {
+                        start: subDays(new Date(), 1),
+                        end: addDays(new Date(), 30),
+                      },
+                    ]}
+                    excludeDates={formState.daysOff?.map(
+                      (dayOff) => new Date(dayOff.dayOffDate)
+                    )}
+                    placeholderText="Izaberite datum"
+                  />
+                  <label id="basic-addon1">Razlog:</label>
+                  <Form.Control
+                    as="textarea"
+                    rows={5}
+                    placeholder={"Day Off reason"}
+                    aria-label="Day off reason"
+                    aria-describedby="basic-addon1"
+                    value={addDayOffReason}
+                    onChange={(e) => setAddDayOffReason(e.target.value)}
+                  />
+                  <div className="add-cancel-buttons">
+                    <Button
+                      disabled={!addDayOffDate}
+                      variant="success"
+                      onClick={(e) => {
+                        setAddDayOffDate(null);
+                        setAddDayOffReason("");
+                        dispatchFormStateAction({
+                          type: "editRestaurantForm/addDayOff",
+                          value: {
+                            dayOffId: nextId++,
+                            restaurantId: Number(params?.rid),
+                            dayOffDate: addDayOffDate as Date,
+                            reason: addDayOffReason,
+                          },
+                        });
+                      }}
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        setAddDayOffDate(null);
+                        setAddDayOffReason("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </InputGroup>
+              </Alert>
+            </div>
+
             <div className="form-froup mb-3">
               <label>Restaurant image</label>
               <div className="input-group">
@@ -946,7 +1089,7 @@ export default function ManagerRestaurantEdit() {
             <div className="form-froup mb-3">
               <button
                 className="btn btn-primary"
-                onClick={() => doAddRestaurant()}
+                onClick={() => doEditRestaurant()}
                 disabled={formState.locationId === 0}
               >
                 Save changes

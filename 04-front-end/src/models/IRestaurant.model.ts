@@ -10,7 +10,7 @@ export interface IDayOffModel {
   dayOffId: number;
   restaurantId: number;
 
-  dayOffDate: string;
+  dayOffDate: Date;
   reason: string;
 }
 export interface ITableModel {

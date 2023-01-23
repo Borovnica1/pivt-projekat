@@ -10,15 +10,15 @@ addFormats(ajv);
 
 export default interface IEditWorkingHours {
   open?: number;
-  opening_hours?: Date;
-  closing_hours?: Date;
+  opening_hours?: string;
+  closing_hours?: string;
   is_closed?: boolean;
 }
 
 interface IEditWorkingHoursServiceDto {
   open?: number;
-  openingHours?: Date;
-  closingHours?: Date;
+  openingHours?: string;
+  closingHours?: string;
   isClosed?: boolean;
 }
 
