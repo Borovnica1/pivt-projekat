@@ -20,6 +20,7 @@ import "./ManagerRestaurantEdit.sass";
 import TimePicker from "react-bootstrap-time-picker";
 import DatePicker from "react-datepicker";
 import { addDays, subDays } from "date-fns";
+import ManagerRestaurantPhotos from './ManagerRestaurantPhotos';
 
 let nextId = 0;
 
@@ -1070,23 +1071,12 @@ export default function ManagerRestaurantEdit() {
               </Alert>
             </div>
 
-            <div className="form-froup mb-3">
-              <label>Restaurant image</label>
-              <div className="input-group">
-                <input
-                  type="file"
-                  accept=".jpg,.png"
-                  className="from-control form-control-sm"
-                  onChange={(e) => {
-                    if (e.target.files) {
-                      setFile(e.target.files[0]);
-                    }
-                  }}
-                />
-              </div>
-            </div>
+            <div className="col col-12 col-lg-5">
+              <h2 className="h6">Manage photos</h2>
 
-            <div className="form-froup mb-3">
+              <ManagerRestaurantPhotos restaurantId={Number(params?.rid)} />
+            </div>
+            <div className="form-froup my-3">
               <button
                 className="btn btn-primary"
                 onClick={() => doEditRestaurant()}
