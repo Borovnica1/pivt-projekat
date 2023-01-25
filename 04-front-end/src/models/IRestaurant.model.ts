@@ -5,6 +5,7 @@ export interface IAddressModel {
   addressId: number;
   streetAndNumber: string;
   phoneNumber: string;
+  toDelete?: boolean;
 }
 export interface IDayOffModel {
   dayOffId: number;
@@ -12,6 +13,7 @@ export interface IDayOffModel {
 
   dayOffDate: Date;
   reason: string;
+  toDelete?: boolean;
 }
 export interface ITableModel {
   tableId: number;
@@ -20,6 +22,7 @@ export interface ITableModel {
   tableName: string;
   tableCapacity: string;
   tableMaxReservationDuration: number;
+  toDelete?: boolean;
 }
 
 interface IRestaurant {

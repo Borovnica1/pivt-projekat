@@ -83,9 +83,6 @@ export default class WorkingHoursController extends BaseController {
       data.closing_hours = body.closingHours;
     }
 
-    if (body.isClosed) {
-      data.is_closed = body.isClosed;
-    }
 
     this.services.workingHours
       .editById(workingHoursId, data, {})

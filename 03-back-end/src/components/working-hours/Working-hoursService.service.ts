@@ -26,7 +26,6 @@ export default class WorkingHoursService extends BaseService<
     workingHours.open = data?.open;
     workingHours.openingHours = data?.opening_hours;
     workingHours.closingHours = data?.closing_hours;
-    workingHours.isClosed = data?.is_closed;
 
     return workingHours;
   }

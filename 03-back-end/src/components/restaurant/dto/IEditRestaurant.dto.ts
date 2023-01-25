@@ -4,11 +4,14 @@ const ajv = new Ajv();
 
 export default interface IEditRestaurant {
   name: string;
+  description: string;
+  location_id: number;
 }
 
 interface IEditRestaurantServiceDto {
   name: string;
-  location_id: number;
+  description: string;
+  locationId: number;
 }
 
 const EditRestaurantValidator = ajv.compile({
@@ -21,7 +24,7 @@ const EditRestaurantValidator = ajv.compile({
     },
   },
   required: ["name"],
-  additionalProperties: false,
+  additionalProperties: true,
 });
 
 export { EditRestaurantValidator, IEditRestaurantServiceDto };

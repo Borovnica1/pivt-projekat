@@ -65,14 +65,34 @@ class RestaurantController extends BaseController {
     res.send(restaurant);
   }
 
+  async getAddressById(req: Request, res: Response) {
+    const addressId: number = Number(req.params?.aId);
+
+    const address = await this.services.address.baseGetById(addressId, {});
+
+    if (address === null) return res.status(404).send("nema adrese");
+
+    res.send(address);
+  }
+
   async getTableById(req: Request, res: Response) {
-    const tableId: number = Number(req.params?.rId);
+    const tableId: number = Number(req.params?.tId);
 
     const table = await this.services.table.baseGetById(tableId, {});
 
     if (table === null) return res.status(404).send("nema podaci");
 
     res.send(table);
+  }
+
+  async getDayOffById(req: Request, res: Response) {
+    const dayOffId: number = Number(req.params?.dId);
+
+    const dayOff = await this.services.dayOff.baseGetById(dayOffId, {});
+
+    if (dayOff === null) return res.status(404).send("nema day offa");
+
+    res.send(dayOff);
   }
 
   async edit(req: Request, res: Response) {
@@ -115,6 +135,8 @@ class RestaurantController extends BaseController {
           restaurantId,
           {
             name: data.name,
+            description: data.description,
+            location_id: data.locationId
           },
           { loadPhotos: false }
         );
@@ -469,7 +491,7 @@ class RestaurantController extends BaseController {
           .add({
             restaurant_id: restaurantId,
             phone_number: data.phoneNumber,
-            place: data?.place || undefined,
+            place: data?.place || "",
             street_and_number: data.streetAndNumber,
           })
           .then((result) => {

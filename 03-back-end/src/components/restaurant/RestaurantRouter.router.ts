@@ -42,6 +42,11 @@ class RestaurantRouter implements IRouter {
       AuthMiddleware.getVerifier("manager"),
       restaurantController.deletePhoto.bind(restaurantController)
     );
+    application.get(
+      "/api/address/:aId",
+      AuthMiddleware.getVerifier("manager"),
+      restaurantController.getAddressById.bind(restaurantController)
+    );
     application.post(
       "/api/restaurant/:rId/address",
       AuthMiddleware.getVerifier("manager"),
@@ -92,6 +97,12 @@ class RestaurantRouter implements IRouter {
       "/api/table/:tId",
       AuthMiddleware.getVerifier("manager", "user"),
       restaurantController.getTableById.bind(restaurantController)
+    );
+
+    application.get(
+      "/api/day-off/:dId",
+      AuthMiddleware.getVerifier("manager", "user"),
+      restaurantController.getDayOffById.bind(restaurantController)
     );
 
     application.get(

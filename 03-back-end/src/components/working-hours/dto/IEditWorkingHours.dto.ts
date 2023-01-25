@@ -12,14 +12,12 @@ export default interface IEditWorkingHours {
   open?: number;
   opening_hours?: string;
   closing_hours?: string;
-  is_closed?: boolean;
 }
 
 interface IEditWorkingHoursServiceDto {
   open?: number;
   openingHours?: string;
   closingHours?: string;
-  isClosed?: boolean;
 }
 
 const EditWorkingHoursValidator = ajv.compile({
@@ -36,7 +34,7 @@ const EditWorkingHoursValidator = ajv.compile({
         $data: "1/openingHours",
       },
     },
-    isClosed: {
+    open: {
       enum: ["1", "0"],
     },
   },

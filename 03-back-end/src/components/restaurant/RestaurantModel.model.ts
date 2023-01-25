@@ -7,6 +7,7 @@ class RestaurantModel {
   restaurantId: number;
   name: string;
   description: string;
+  locationId: number;
 
   photos?: PhotoModel[];
   workingHours?: WorkingHoursModel[];
