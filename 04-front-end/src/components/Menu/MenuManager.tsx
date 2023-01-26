@@ -11,9 +11,9 @@ export default function MenuAdministrator() {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
-      <Link className="navbar-brand" to="/profile">
+      <h4 className="navbar-brand">
         Good day, {AuthStore.getState().identity}
-      </Link>
+      </h4>
 
       <button
         className="navbar-toggler"

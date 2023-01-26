@@ -497,6 +497,11 @@ export default function ManagerRestaurantEdit() {
         const promises4 = await Promise.all([
           ...formState.daysOff.map((dayOff) => {
             const newDayOffDate = new Date(dayOff.dayOffDate);
+            console.log(
+              "newDAY OFFDATE???",
+              newDayOffDate,
+              "0" + newDayOffDate.getMonth() + 1
+            );
             return api(
               "get",
               "/api/day-off/" + dayOff.dayOffId,
@@ -523,7 +528,7 @@ export default function ManagerRestaurantEdit() {
                         dayOffDate:
                           newDayOffDate.getFullYear() +
                           "-" +
-                          ("0" + newDayOffDate.getMonth() + 1).slice(-2) +
+                          ("0" + (newDayOffDate.getMonth() + 1)).slice(-2) +
                           "-" +
                           ("0" + newDayOffDate.getDate()).slice(-2),
                         reason: dayOff.reason,
@@ -538,7 +543,7 @@ export default function ManagerRestaurantEdit() {
                     dayOffDate:
                       newDayOffDate.getFullYear() +
                       "-" +
-                      ("0" + newDayOffDate.getMonth() + 1).slice(-2) +
+                      ("0" + (newDayOffDate.getMonth() + 1)).slice(-2) +
                       "-" +
                       ("0" + newDayOffDate.getDate()).slice(-2),
                     reason: dayOff.reason,

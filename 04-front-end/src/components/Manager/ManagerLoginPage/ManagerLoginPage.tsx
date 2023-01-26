@@ -38,7 +38,7 @@ export default function AdministratorLoginPage() {
         AuthStore.dispatch({
           type: "update",
           key: "identity",
-          value: data?.identity,
+          value: data?.username,
         });
         AuthStore.dispatch({ type: "update", key: "id", value: +data?.id });
         AuthStore.dispatch({

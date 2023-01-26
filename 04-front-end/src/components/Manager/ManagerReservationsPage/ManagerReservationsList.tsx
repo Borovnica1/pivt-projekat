@@ -11,6 +11,7 @@ import ReactPaginate from "react-paginate";
 import { useState } from "react";
 import styled from "styled-components";
 import { api } from "../../../api/api";
+import { AnyARecord } from "dns";
 
 const MyPaginate = styled(ReactPaginate).attrs({
   // You can redefine classes here, if you want.
@@ -53,9 +54,9 @@ const MyPaginate = styled(ReactPaginate).attrs({
 `;
 interface IManagerReservationsListProps {
   filter: string;
-  reservations: IReservationProps[];
+  reservations: any[];
   itemsPerPage: any;
-  setReservations: React.Dispatch<React.SetStateAction<IReservationProps[]>>;
+  setReservations: React.Dispatch<React.SetStateAction<any[]>>;
   setKey: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -105,6 +106,9 @@ function ManagerReservationList(props: IManagerReservationsListProps) {
   // Here we use item offsets; we could also use page offsets
   // following the API or data you're working with.
   const [itemOffset, setItemOffset] = useState(0);
+
+  console.log("sta je ovo props.reservations?: ", props.reservations);
+  
   const propsReservationsFiltered = props.reservations.filter((reservation) => {
     switch (props.filter) {
       case "all":

@@ -19,9 +19,10 @@ function ManagerReservationsPage() {
 
   useEffect(() => {
     api("get", "/api/reservation", "manager").then((res) => {
-      console.log("sta je ovo?", res.data);
-      if (res.status === "ok") {
+      if (res.status === "ok" && JSON.stringify(res.data) !== "{}") {
         setReservations(res.data);
+      } else {
+        setReservations([]);
       }
     });
   }, []);

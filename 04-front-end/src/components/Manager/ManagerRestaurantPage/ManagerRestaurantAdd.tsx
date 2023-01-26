@@ -289,7 +289,7 @@ export default function ManagerRestaurantAdd() {
           navigate("/manager/dashboard/restaurant/list", {
             replace: true,
           });
-        }, 10000);
+        }, 3000);
       })
       .catch((error) => {
         setErrorMessage(error?.message ?? "Unknown error!");

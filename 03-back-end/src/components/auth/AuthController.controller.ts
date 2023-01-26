@@ -64,6 +64,7 @@ export default class AuthController extends BaseController {
           authToken: authToken,
           refreshToken: refreshToken,
           id: manager.managerId,
+          username: manager.username,
         });
       })
       .catch((error) => {

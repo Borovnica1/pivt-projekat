@@ -99,6 +99,7 @@ export default class ReservationController extends BaseController {
       .add({
         table_id: tableId,
         email: data.email,
+        phone_number: data.phoneNumber,
         first_name: data.firstName,
         last_name: data.lastName,
         reservation_date: data.reservationDate,

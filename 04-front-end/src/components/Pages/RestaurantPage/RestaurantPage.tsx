@@ -167,7 +167,7 @@ export function RestaurantPage() {
     if (tableReservations && restaurant) {
       availableReservationsTimes =
         calculateAvailableReservationTimesForSpecificDay(
-          date.getDay() - 1,
+          date.getDay(),
           tableReservations,
           restaurant
         );
@@ -183,13 +183,13 @@ export function RestaurantPage() {
     restaurant2: IRestaurant
   ): any[] {
     const weekDays = [
+      "Sunday",
       "Monday",
       "Tuesday",
       "Wednesday",
       "Thursday",
       "Friday",
       "Saturday",
-      "Sunday",
     ];
 
     const restaurantWorkingDay: IWorkingHours =
@@ -201,8 +201,15 @@ export function RestaurantPage() {
       "working DAY JE: ",
       restaurantWorkingDay,
       "Table raeseservations: ",
-      tableReservations
+      tableReservations,
+      "dayIndex",
+      dayIndex,
+      weekDays[dayIndex]
     );
+
+    if (!restaurantWorkingDay.open) {
+      return [];
+    }
 
     const tableReservationsTimes = tableReservations.map((reservation) => {
       const reservationDateTime = new Date(reservation.reservationDate);
@@ -436,7 +443,12 @@ export function RestaurantPage() {
         </Carousel>
         <p>{restaurant?.description || "No description..."}</p>
         {restaurant?.addresses?.map((address) => {
-          return <h5 key={address.addressId}>{address.streetAndNumber}</h5>;
+          return (
+            <div key={address.addressId}>
+              <h5>{address.streetAndNumber}</h5>
+              <h6>{address.phoneNumber}</h6>
+            </div>
+          );
         })}
         <h5>Radno vreme restorana:</h5>
         <ul>
