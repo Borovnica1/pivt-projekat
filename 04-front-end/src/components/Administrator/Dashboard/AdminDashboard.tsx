@@ -28,7 +28,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="col-12 col-lg-4 col-md-6 col-xl-3 p-3">
+      {/* <div className="col-12 col-lg-4 col-md-6 col-xl-3 p-3">
         <div className="card">
           <div className="card-body">
             <div className="card-title">
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -89,6 +89,26 @@ const DevConfig: IConfig = {
     debug: true,
   },
   auth: {
+    administrator: {
+      algorithm: "RS256",
+      issuer: "pivt",
+      tokens: {
+        auth: {
+          duration: 60 * 60 * 24,
+          keys: {
+            public: readFileSync("./.keystore/rsa.public", "ascii"),
+            private: readFileSync("./.keystore/rsa.private", "ascii"),
+          },
+        },
+        refresh: {
+          duration: 60 * 60 * 24 * 60,
+          keys: {
+            public: readFileSync("./.keystore/rsa.public", "ascii"),
+            private: readFileSync("./.keystore/rsa.private", "ascii"),
+          },
+        },
+      },
+    },
     manager: {
       algorithm: "RS256",
       issuer: "pivt",

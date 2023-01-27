@@ -71,7 +71,7 @@ export default function AdminLocationList() {
         <td>
           <Link
             className="btn btn-primary btn-sm"
-            to={"/location/" + props.location.locationId}
+            to={"/location/" + props.location.locationId + '/restaurants'}
           >
             List restaurants
           </Link>

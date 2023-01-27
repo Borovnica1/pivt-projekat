@@ -13,10 +13,11 @@ export default function AdminLocationAdd() {
     api("post", "/api/location", "administrator", {
       location_name: locationName,
     }).then((res) => {
-      if (res.status === "error") {
-        setErrorMessage(res.data);
-      } else {
+      console.log('res', res);
+      if (res.status === "ok") {
         navigate("/admin/dashboard/location/list");
+      } else {
+        setErrorMessage(res.data);
       }
     });
   }

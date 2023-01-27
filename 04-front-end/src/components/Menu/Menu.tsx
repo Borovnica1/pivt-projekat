@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import AuthStore from "../../stores/AuthStore";
-import MenuAdministrator from "./MenuManager";
+import MenuAdministrator from "./MenuAdministrator";
 import MenuManager from "./MenuManager";
 import MenuUser from "./MenuUser";
 import MenuVisitor from "./MenuVisitor";
@@ -16,7 +16,7 @@ export default function Menu() {
   });
 
   return (
-    <div style={{marginBottom: "10px"}}>
+    <div style={{ marginBottom: "10px" }}>
       {role === "visitor" && <MenuVisitor />}
       {role === "user" && <MenuUser />}
       {role === "manager" && <MenuManager />}

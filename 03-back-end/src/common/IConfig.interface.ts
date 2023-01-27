@@ -91,6 +91,7 @@ interface IConfig {
   auth: {
     user: IAuthTokenOptions;
     manager: IAuthTokenOptions;
+    administrator: IAuthTokenOptions;
     allowAllRoutesWithoutAuthToken: boolean;
   };
   frontend: {
