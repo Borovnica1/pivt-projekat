@@ -25,10 +25,16 @@ export interface ITableModel {
   toDelete?: boolean;
 }
 
+export interface IOpenTime {
+  currentlyOpen: boolean;
+  message: string;
+}
+
 interface IRestaurant {
   restaurantId: number;
   name: string;
   description: string;
+  openTime: IOpenTime;
 
   photos?: IPhoto[];
   workingHours: WorkingHours[];

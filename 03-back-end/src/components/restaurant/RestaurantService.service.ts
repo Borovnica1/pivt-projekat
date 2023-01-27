@@ -28,7 +28,6 @@ class RestaurantService extends BaseService<
   ): Promise<RestaurantModel> {
     const restaurant: RestaurantModel = new RestaurantModel();
 
-
     restaurant.restaurantId = +data?.restaurant_id;
     restaurant.locationId = +data?.location_id;
     restaurant.name = data?.name;
@@ -97,6 +96,7 @@ class RestaurantService extends BaseService<
               await this.adaptToModel(row, {
                 loadPhotos: true,
                 loadWorkingHours: true,
+                loadDaysOff: true,
               })
             );
           }

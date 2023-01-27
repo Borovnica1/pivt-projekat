@@ -33,12 +33,12 @@ export default class ReservationRouter implements IRouter {
     );
     application.put(
       "/api/restaurant/:rId/table/:tId/reservation/:reseId",
-      AuthMiddleware.getVerifier("manager", "user"),
+      AuthMiddleware.getVerifier("manager"),
       reservationController.edit.bind(reservationController)
     );
     application.delete(
       "/api/restaurant/:rId/table/:tId/reservation/:reseId",
-      AuthMiddleware.getVerifier("manager", "user"),
+      AuthMiddleware.getVerifier("manager"),
       reservationController.delete.bind(reservationController)
     );
   }

@@ -27,6 +27,7 @@ import { IReservation } from "../../../models/IReservation.model";
 import IWorkingHours from "../../../models/IWorkingHours.model";
 import AuthStore from "../../../stores/AuthStore";
 import IUser from "../../../models/IUser.model";
+import { calculateOpenTime } from "../RestaurantsPage/RestaurantsPage";
 
 export function RestaurantPage() {
   const [restaurant, setRestaurant] = useState<IRestaurant>();
@@ -345,7 +346,9 @@ export function RestaurantPage() {
     api("get", "/api/restaurant/" + params.rid, "user")
       .then((res) => {
         if (res.status === "ok") {
-          setRestaurant(res.data);
+          const openTime = calculateOpenTime(res.data);
+          const restoran = { ...res.data, openTime: openTime };
+          setRestaurant(restoran);
         } else {
           setError(res.data);
         }
@@ -420,6 +423,14 @@ export function RestaurantPage() {
 
       <>
         <h2>{restaurant?.name}</h2>
+        <Alert
+          style={{
+            whiteSpace: "pre-wrap",
+          }}
+          variant={restaurant?.openTime.currentlyOpen ? "success" : "danger"}
+        >
+          {restaurant?.openTime.message}
+        </Alert>
         <Carousel style={{ height: "500px" }}>
           {restaurant?.photos?.map((photo) => (
             <Carousel.Item

@@ -99,7 +99,7 @@ export default class ReservationController extends BaseController {
       .add({
         table_id: tableId,
         email: data.email,
-        phone_number: data.phoneNumber,
+        ...(data.phoneNumber && {phone_number: data.phoneNumber}),
         first_name: data.firstName,
         last_name: data.lastName,
         reservation_date: data.reservationDate,
@@ -228,7 +228,7 @@ export default class ReservationController extends BaseController {
                   <body>
                     <p> Dear ${manager.username},
                     <br>
-                                                  <a href="${DevConfig.frontend.route}/reservation/${reservation.reservationId}"
+                                                  <a href="${DevConfig.frontend.route}/manager/dashboard/reservations/pending"
                                 sryle="display: inline-block; padding: 10px 20px; color:#fff; background-color: #db0002; text-decoration: none;">
                                   Click here to check reservation!
                             </a>
