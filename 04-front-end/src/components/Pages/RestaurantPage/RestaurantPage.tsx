@@ -34,7 +34,7 @@ export function RestaurantPage() {
   const [error, setError] = useState("");
   const [errorReservations, setErrorReservations] = useState("");
   const [errorMakeReservation, setErrorMakeReservation] = useState("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [tableChosen, setTableChosen] = useState<ITableModel>();
   const [selectedReservationDate, setSelectedReservationDate] =
     useState<Date>();
@@ -421,284 +421,287 @@ export function RestaurantPage() {
       {loading && <p>Loading...</p>}
       {error && <p className="alert alert-danger">{error}</p>}
 
-      <>
-        <h2>{restaurant?.name}</h2>
-        <Alert
-          style={{
-            whiteSpace: "pre-wrap",
-          }}
-          variant={restaurant?.openTime.currentlyOpen ? "success" : "danger"}
-        >
-          {restaurant?.openTime.message}
-        </Alert>
-        <Carousel style={{ height: "500px" }}>
-          {restaurant?.photos?.map((photo) => (
-            <Carousel.Item
-              style={{ width: "100%", height: "100%" }}
-              key={photo.filePath}
-            >
-              <img
-                className="d-block w-100"
-                src={
-                  myConfig.apiBaseUrl +
-                  "/assets/" +
-                  path.dirname(photo.filePath) +
-                  "/medium-" +
-                  path.basename(photo.filePath)
-                }
-                alt={photo.name}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </Carousel.Item>
-          ))}
-        </Carousel>
-        <p>{restaurant?.description || "No description..."}</p>
-        {restaurant?.addresses?.map((address) => {
-          return (
-            <div key={address.addressId}>
-              <h5>{address.streetAndNumber}</h5>
-              <h6>{address.phoneNumber}</h6>
-            </div>
-          );
-        })}
-        <h5>Radno vreme restorana:</h5>
-        <ul>
-          {restaurant?.workingHours?.map((workingHoursDay) => {
-            return (
-              <div
-                key={
-                  "workinghours-" +
-                  restaurant?.restaurantId +
-                  "-" +
-                  workingHoursDay.workingHoursId
-                }
+      {!loading && (
+        <>
+          <h2>{restaurant?.name}</h2>
+          <Alert
+            style={{
+              whiteSpace: "pre-wrap",
+            }}
+            variant={restaurant?.openTime.currentlyOpen ? "success" : "danger"}
+          >
+            {restaurant?.openTime.message}
+          </Alert>
+          <Carousel style={{ height: "500px" }}>
+            {restaurant?.photos?.map((photo) => (
+              <Carousel.Item
+                style={{ width: "100%", height: "100%" }}
+                key={photo.filePath}
               >
-                {!workingHoursDay.open ? (
-                  workingHoursDay.day + ": CLOSED! "
-                ) : (
-                  <span className="d-inline-block">
-                    {workingHoursDay.day +
-                      ": " +
-                      workingHoursDay.openingHours +
-                      "-" +
-                      workingHoursDay.closingHours}
-                  </span>
-                )}
-                <br />
+                <img
+                  className="d-block w-100"
+                  src={
+                    myConfig.apiBaseUrl +
+                    "/assets/" +
+                    path.dirname(photo.filePath) +
+                    "/medium-" +
+                    path.basename(photo.filePath)
+                  }
+                  alt={photo.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </Carousel.Item>
+            ))}
+          </Carousel>
+          <p>{restaurant?.description || "No description..."}</p>
+          {restaurant?.addresses?.map((address) => {
+            return (
+              <div key={address.addressId}>
+                <h5>{address.streetAndNumber}</h5>
+                <h6>telefon: {address.phoneNumber}</h6>
               </div>
             );
           })}
-        </ul>
-        <h4>Datumi kada restoran ne radi:</h4>
-        <ul>
-          {restaurant?.daysOff?.length
-            ? restaurant?.daysOff?.map((dayOff) => {
-                const newDate = new Date(dayOff.dayOffDate);
-                return (
-                  <Alert key={"dayoff-" + dayOff.dayOffId} variant="warning">
-                    {newDate.getMonth() +
-                      1 +
-                      "/" +
-                      newDate.getDate() +
-                      "/" +
-                      newDate.getFullYear() +
-                      " Razlog: " +
-                      dayOff.reason}
-                  </Alert>
-                );
-              })
-            : "Nema datuma kada restoran ne radi!"}
-        </ul>
-        <Container>
-          <Row xs={1} sm={2} md={3} lg={4} xxl={6}>
-            {restaurant?.tables?.map((table) => (
-              <Col style={{ padding: "10px" }} key={table.tableId}>
-                <h3>{table.tableName}</h3>
-                <h5>{"Broj mesta: " + table.tableCapacity}</h5>
-                <h5>
-                  {"Max vreme rezervacije: " +
-                    table.tableMaxReservationDuration +
-                    "min"}
-                </h5>
-                <Button variant="primary" onClick={() => handleShow(table)}>
-                  Slobodni termini
-                </Button>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>
-              Rezervacija stola: {tableChosen?.tableName}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <div style={{ marginBottom: "10px" }}>
-              <h5>1. Odaberite datum:</h5>
-              <DatePicker
-                selected={selectedReservationDate}
-                onChange={(date: Date) => dateChanged(date)}
-                includeDateIntervals={[
-                  {
-                    start: subDays(new Date(), 1),
-                    end: addDays(new Date(), 30),
-                  },
-                ]}
-                excludeDates={restaurant?.daysOff?.map(
-                  (dayOff) => new Date(dayOff.dayOffDate)
-                )}
-                placeholderText="Izaberite datum"
-              />
-            </div>
-            <div>
-              {errorReservations && (
-                <p className="alert alert-danger">{errorReservations}</p>
-              )}
-              {availableReservations.length === 0 &&
-                selectedReservationDate && (
-                  <h5>Nema slobodnih termina za ovaj datum!</h5>
-                )}
-              {availableReservations.length > 0 && (
-                <h5>2. Izaberite vreme rezervacije</h5>
-              )}
-              {availableReservations.length > 0 &&
-                availableReservations.map((availableReservation) => {
-                  return (
-                    <Badge
-                      key={"availableReservation" + availableReservation}
-                      onClick={() => setReservationTime(availableReservation)}
-                      bg="info"
-                      style={{
-                        marginLeft: "5px",
-                        marginRight: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {availableReservation}
-                    </Badge>
-                  );
-                })}
-              {reservationTime && (
-                <div>
-                  Vreme rezervacije:{" "}
-                  <Badge
-                    bg="info"
-                    style={{ marginLeft: "5px", marginRight: "5px" }}
-                  >
-                    {reservationTime}
-                  </Badge>
-                </div>
-              )}
-            </div>
-            {reservationTime && (
-              <div style={{ marginTop: "10px" }}>
-                <h5>3. Izaberite vreme trajanja rezervacije</h5>
-                <Form.Select
-                  aria-label="Default select example"
-                  ref={reservationTimeDurationRef}
-                  onChange={(e) => reservationTimeDurationChanged(e)}
+          <h5>Radno vreme restorana:</h5>
+          <ul>
+            {restaurant?.workingHours?.map((workingHoursDay) => {
+              return (
+                <div
+                  key={
+                    "workinghours-" +
+                    restaurant?.restaurantId +
+                    "-" +
+                    workingHoursDay.workingHoursId
+                  }
                 >
-                  <option>Duzine rezervacije</option>
-                  {reservationTimeDurations.map((reservationTimeDuration) => {
+                  {!workingHoursDay.open ? (
+                    workingHoursDay.day + ": CLOSED! "
+                  ) : (
+                    <span className="d-inline-block">
+                      {workingHoursDay.day +
+                        ": " +
+                        workingHoursDay.openingHours +
+                        "-" +
+                        workingHoursDay.closingHours}
+                    </span>
+                  )}
+                  <br />
+                </div>
+              );
+            })}
+          </ul>
+          <h4>Datumi kada restoran ne radi:</h4>
+          <ul>
+            {restaurant?.daysOff?.length
+              ? restaurant?.daysOff?.map((dayOff) => {
+                  const newDate = new Date(dayOff.dayOffDate);
+                  return (
+                    <Alert key={"dayoff-" + dayOff.dayOffId} variant="warning">
+                      {newDate.getMonth() +
+                        1 +
+                        "/" +
+                        newDate.getDate() +
+                        "/" +
+                        newDate.getFullYear() +
+                        " Razlog: " +
+                        dayOff.reason}
+                    </Alert>
+                  );
+                })
+              : "Nema datuma kada restoran ne radi!"}
+          </ul>
+          <h4>Stolovi:</h4>
+          <Container>
+            <Row xs={1} sm={2} md={3} lg={4} xxl={6}>
+              {restaurant?.tables?.map((table) => (
+                <Col style={{ padding: "10px" }} key={table.tableId}>
+                  <h3>{table.tableName}</h3>
+                  <h5>{"Broj mesta: " + table.tableCapacity}</h5>
+                  <h5>
+                    {"Max vreme rezervacije: " +
+                      table.tableMaxReservationDuration +
+                      "min"}
+                  </h5>
+                  <Button variant="primary" onClick={() => handleShow(table)}>
+                    Slobodni termini
+                  </Button>
+                </Col>
+              ))}
+            </Row>
+          </Container>
+          <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                Rezervacija stola: {tableChosen?.tableName}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div style={{ marginBottom: "10px" }}>
+                <h5>1. Odaberite datum:</h5>
+                <DatePicker
+                  selected={selectedReservationDate}
+                  onChange={(date: Date) => dateChanged(date)}
+                  includeDateIntervals={[
+                    {
+                      start: subDays(new Date(), 1),
+                      end: addDays(new Date(), 30),
+                    },
+                  ]}
+                  excludeDates={restaurant?.daysOff?.map(
+                    (dayOff) => new Date(dayOff.dayOffDate)
+                  )}
+                  placeholderText="Izaberite datum"
+                />
+              </div>
+              <div>
+                {errorReservations && (
+                  <p className="alert alert-danger">{errorReservations}</p>
+                )}
+                {availableReservations.length === 0 &&
+                  selectedReservationDate && (
+                    <h5>Nema slobodnih termina za ovaj datum!</h5>
+                  )}
+                {availableReservations.length > 0 && (
+                  <h5>2. Izaberite vreme rezervacije</h5>
+                )}
+                {availableReservations.length > 0 &&
+                  availableReservations.map((availableReservation) => {
                     return (
-                      <option
-                        key={
-                          "reservationTimeDuration-" +
-                          reservationTimeDuration.time
-                        }
-                        value={reservationTimeDuration.value}
+                      <Badge
+                        key={"availableReservation" + availableReservation}
+                        onClick={() => setReservationTime(availableReservation)}
+                        bg="info"
+                        style={{
+                          marginLeft: "5px",
+                          marginRight: "5px",
+                          cursor: "pointer",
+                        }}
                       >
-                        {reservationTimeDuration.time}
-                      </option>
+                        {availableReservation}
+                      </Badge>
                     );
                   })}
-                </Form.Select>
-              </div>
-            )}
-            {selectedReservationDate &&
-              reservationTime &&
-              reservationTimeDuration && (
-                <div style={{ marginTop: "10px" }}>
-                  <h5>4. Unesite podatke za rezervaciju</h5>
-                  <FloatingLabel
-                    controlId="floatingInput"
-                    label="First name  (optional)"
-                    className="mb-3 mt-3"
-                  >
-                    <Form.Control
-                      type="text"
-                      placeholder="Firstname"
-                      defaultValue={visitorFirstName}
-                      onChange={(e) => setVisitorFirstName(e.target.value)}
-                    />
-                  </FloatingLabel>
-                  <FloatingLabel
-                    controlId="floatingInput"
-                    label="Last name  (optional)"
-                    className="mb-3"
-                  >
-                    <Form.Control
-                      type="text"
-                      placeholder="Lastname"
-                      defaultValue={visitorLastName}
-                      onChange={(e) => setVisitorLastName(e.target.value)}
-                    />
-                  </FloatingLabel>
-                  <FloatingLabel
-                    controlId="floatingInput"
-                    label="Email address"
-                    className="mb-3"
-                  >
-                    <Form.Control
-                      type="email"
-                      placeholder="name@example.com"
-                      defaultValue={visitorEmail}
-                      onChange={(e) => setVisitorEmail(e.target.value)}
-                    />
-                  </FloatingLabel>
-                  <FloatingLabel
-                    controlId="floatingPhoneNumber"
-                    label="PhoneNumber (optional)"
-                  >
-                    <Form.Control
-                      type="text"
-                      placeholder="PhoneNumber"
-                      onChange={(e) => setVisitorPhoneNumber(e.target.value)}
-                    />
-                  </FloatingLabel>
-                  {errorMakeReservation && (
-                    <Alert
-                      style={{ marginTop: "10px", overflowWrap: "anywhere" }}
-                      variant="warning"
+                {reservationTime && (
+                  <div>
+                    Vreme rezervacije:{" "}
+                    <Badge
+                      bg="info"
+                      style={{ marginLeft: "5px", marginRight: "5px" }}
                     >
-                      {errorMakeReservation}
-                    </Alert>
-                  )}
+                      {reservationTime}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+              {reservationTime && (
+                <div style={{ marginTop: "10px" }}>
+                  <h5>3. Izaberite vreme trajanja rezervacije</h5>
+                  <Form.Select
+                    aria-label="Default select example"
+                    ref={reservationTimeDurationRef}
+                    onChange={(e) => reservationTimeDurationChanged(e)}
+                  >
+                    <option>Duzine rezervacije</option>
+                    {reservationTimeDurations.map((reservationTimeDuration) => {
+                      return (
+                        <option
+                          key={
+                            "reservationTimeDuration-" +
+                            reservationTimeDuration.time
+                          }
+                          value={reservationTimeDuration.value}
+                        >
+                          {reservationTimeDuration.time}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
                 </div>
               )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleMakeReservation}
-              disabled={
-                selectedReservationDate &&
+              {selectedReservationDate &&
                 reservationTime &&
-                reservationTimeDuration &&
-                visitorEmail
-                  ? false
-                  : true
-              }
-            >
-              Rezervisi sto
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </>
+                reservationTimeDuration && (
+                  <div style={{ marginTop: "10px" }}>
+                    <h5>4. Unesite podatke za rezervaciju</h5>
+                    <FloatingLabel
+                      controlId="floatingInput"
+                      label="First name  (optional)"
+                      className="mb-3 mt-3"
+                    >
+                      <Form.Control
+                        type="text"
+                        placeholder="Firstname"
+                        defaultValue={visitorFirstName}
+                        onChange={(e) => setVisitorFirstName(e.target.value)}
+                      />
+                    </FloatingLabel>
+                    <FloatingLabel
+                      controlId="floatingInput"
+                      label="Last name  (optional)"
+                      className="mb-3"
+                    >
+                      <Form.Control
+                        type="text"
+                        placeholder="Lastname"
+                        defaultValue={visitorLastName}
+                        onChange={(e) => setVisitorLastName(e.target.value)}
+                      />
+                    </FloatingLabel>
+                    <FloatingLabel
+                      controlId="floatingInput"
+                      label="Email address"
+                      className="mb-3"
+                    >
+                      <Form.Control
+                        type="email"
+                        placeholder="name@example.com"
+                        defaultValue={visitorEmail}
+                        onChange={(e) => setVisitorEmail(e.target.value)}
+                      />
+                    </FloatingLabel>
+                    <FloatingLabel
+                      controlId="floatingPhoneNumber"
+                      label="PhoneNumber (optional)"
+                    >
+                      <Form.Control
+                        type="text"
+                        placeholder="PhoneNumber"
+                        onChange={(e) => setVisitorPhoneNumber(e.target.value)}
+                      />
+                    </FloatingLabel>
+                    {errorMakeReservation && (
+                      <Alert
+                        style={{ marginTop: "10px", overflowWrap: "anywhere" }}
+                        variant="warning"
+                      >
+                        {errorMakeReservation}
+                      </Alert>
+                    )}
+                  </div>
+                )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleClose}>
+                Close
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleMakeReservation}
+                disabled={
+                  selectedReservationDate &&
+                  reservationTime &&
+                  reservationTimeDuration &&
+                  visitorEmail
+                    ? false
+                    : true
+                }
+              >
+                Rezervisi sto
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </>
+      )}
       <ToastContainer className="p-3" position="bottom-center">
         <Toast
           onClose={() => setToastShow(false)}

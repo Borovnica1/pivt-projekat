@@ -32,6 +32,7 @@ export interface IOpenTime {
 
 interface IRestaurant {
   restaurantId: number;
+  locationId: number;
   name: string;
   description: string;
   openTime: IOpenTime;

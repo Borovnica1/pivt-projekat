@@ -132,7 +132,7 @@ export function calculateOpenTime(restaurant: IRestaurant) {
 export function RestaurantsPage() {
   const [restaurants, setRestaurants] = useState<IRestaurant[]>([]);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const params = useParams();
   console.log("RENDER RestaurantsPage RENDER RestaurantsPage RENDER!!");
@@ -170,6 +170,16 @@ export function RestaurantsPage() {
 
       <Container>
         <Row>
+          {restaurants.length === 0 && !loading && (
+            <Alert
+              style={{
+                whiteSpace: "pre-wrap",
+              }}
+              variant="danger"
+            >
+              Za ovu lokaciju trenutno nema restorana!
+            </Alert>
+          )}
           {restaurants.map((restaurant) => {
             const photoFilePath: string =
               restaurant?.photos?.[0]?.filePath || "";
@@ -185,7 +195,7 @@ export function RestaurantsPage() {
                 <Link
                   to={
                     "/location/" +
-                    params.lid +
+                    restaurant.locationId +
                     "/restaurant/" +
                     restaurant.restaurantId
                   }
