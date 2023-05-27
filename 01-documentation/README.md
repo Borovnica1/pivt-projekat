@@ -34,7 +34,6 @@ Aplikacija treba da omogući menadžerima restorana da se registruju i da dodaju
 - Listanje svih rezervacija
 - Promena statusa rezervacije
 
-
 **Posetilac sajta**
 
 - Prijava
@@ -54,3 +53,13 @@ Aplikacija treba da omogući menadžerima restorana da se registruju i da dodaju
 - Prikaz svih lokacija
 - Dodavanje lokacije
 - Izmena lokacije
+
+**Demo Administrator**
+
+- username: admin
+- passoword: admin123
+
+**Demo Manager**
+
+- email: lola@gmail.com
+- passoword: Lola123

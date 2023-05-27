@@ -2,5 +2,11 @@ node_modules/
 dist/
 logs/
 temp/
-03-back-end/static/uploads
-03-back-end/src/config.mail.ts
+03-back-end/static/uploads/*
+03-back-end/static/uploads/2023
+!03-back-end/static/uploads/2023
+03-back-end/static/uploads/2023/05/*
+!03-back-end/static/uploads/2023/05
+!15cc5918-ccd2-4908-944a-7fb8ac0f6190-res.jpg
+!medium-15cc5918-ccd2-4908-944a-7fb8ac0f6190-res.jpg
+!small-15cc5918-ccd2-4908-944a-7fb8ac0f6190-res.jpg

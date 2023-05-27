@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
 
 -- Dumping data for table pivt_app.photo: ~1 rows (approximately)
 INSERT INTO `photo` (`photo_id`, `name`, `file_path`, `restaurant_id`) VALUES
-	(26, '9817e6f9-ee4d-4e9f-99d2-40f1cda5e2d2-restoaran1.jpg', 'uploads/2023/01/9817e6f9-ee4d-4e9f-99d2-40f1cda5e2d2-restoaran1.jpg', 40);
+	(26, '15cc5918-ccd2-4908-944a-7fb8ac0f6190-res.jpg', 'uploads/2023/05/15cc5918-ccd2-4908-944a-7fb8ac0f6190-res.jpg', 40);
 
 -- Dumping structure for table pivt_app.reservation
 DROP TABLE IF EXISTS `reservation`;
